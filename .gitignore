@@ -164,3 +164,6 @@ cython_debug/
 
 # Data folder
 data*/
+
+# Mac users
+.DS_Store
