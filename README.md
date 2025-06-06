@@ -11,6 +11,24 @@ Project Organization
     ├── data               <- Should be in your computer but not on Github (only in .gitignore)
     │   ├── processed      <- The final, canonical data sets for modeling.
     │   └── raw            <- The original, immutable data dump.
+    │       ├── IIT-CDIP
+    │       │   ├── images
+    │       │   │   └── imagesa
+    │       │   │       └── a
+    │       │   └── xmls
+    │       │       └── iitcdip.a.a.xml
+    │       └── RVL-CDIP
+    │           ├── images
+    │           │   └── imagesa
+    │           │       └── a
+    │           └── labels
+    │               ├── test.txt
+    │               ├── train.txt
+    │               └── val.txt
+    ├── data_sample        <- Same sub-tree structure as "data" (Project may contain more than 1 sample)
+    │
+    ├── models
+    │   └── .gitkeep    
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
     │
