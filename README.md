@@ -10,6 +10,7 @@ Project Organization
     ├── README.md          <- The top-level README for developers using this project.
     ├── data               <- Should be in your computer but not on Github (only in .gitignore)
     │   ├── processed      <- The final, canonical data sets for modeling.
+    │   ├── extracted      <- What is extracted from raw data but not final yet
     │   └── raw            <- The original, immutable data dump.
     │       ├── IIT-CDIP
     │       │   ├── images
