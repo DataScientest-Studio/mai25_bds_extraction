@@ -167,3 +167,7 @@ data*/
 
 # Mac users
 .DS_Store
+
+# temporary model and pipeline ignore
+models*/
+pipelines*/
