@@ -10,6 +10,9 @@ Project Organization
     ├── README.md          <- The top-level README for developers using this project.
     ├── data               <- Should be in your computer but not on Github (only in .gitignore)
     │   ├── processed      <- The final, canonical data sets for modeling.
+    │   ├── metadata       <- dataframes containing side information
+    |   │   └── samples    <- document dataframe samples
+    │   ├── converted      <- images converted to 3-channel jpeg format
     │   └── raw            <- The original, immutable data dump.
     │       ├── IIT-CDIP
     │       │   ├── images
@@ -25,12 +28,10 @@ Project Organization
     │               ├── test.txt
     │               ├── train.txt
     │               └── val.txt
-    ├── data_sample        <- Same sub-tree structure as "data" (Project may contain more than 1 sample)
-    │
-    ├── models
-    │   └── .gitkeep    
     │
     ├── models             <- Trained and serialized models, model predictions, or model summaries
+    │
+    ├── pipelines          <- Trained and serialized pipelines
     │
     ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
     │                         the creator's name, and a short `-` delimited description, e.g.
