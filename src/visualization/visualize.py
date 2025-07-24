@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from matplotlib.gridspec import GridSpec
 from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
 from sklearn.metrics import confusion_matrix, precision_score, accuracy_score
 
 from src import PATHS
@@ -65,7 +65,7 @@ def plot_spider_graph(y_eval, y_preds, model_names, axe):
     
 
                       
-def visual_classification_report(model, X_eval, y_eval, model_name="", compare_with_components = False):
+def visual_classification_report(model, X_eval, y_eval, model_name="", compare_with_components = False, apply_argmax_to_predict=False):
     if not model_name:
         model_name =  model.__class__.__name__
     
@@ -77,7 +77,10 @@ def visual_classification_report(model, X_eval, y_eval, model_name="", compare_w
     cm_ax = fig.add_subplot(gs[:, 1])
     
     t0 = time.time()
-    y_pred = model.predict(X_eval)
+    if apply_argmax_to_predict:
+        y_pred = np.argmax(model.predict(X_eval), axis=1)
+    else:
+        y_pred = model.predict(X_eval)
     predict_time = time.time() - t0
     predict_speed = predict_time / X_eval.shape[0]
 
@@ -102,6 +105,45 @@ def visual_classification_report(model, X_eval, y_eval, model_name="", compare_w
     plt.suptitle(model_name, fontsize=20)
     plt.show()
     
+def plot_history(history, title_prefix="Model"):
+    sns.set(style="whitegrid")
+    history_dict = history.history
+    epochs = range(1, len(history_dict['loss']) + 1)
+
+    plt.figure(figsize=(12, 5))
+
+    # --- Loss ---
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, history_dict['loss'], label='Train Loss', color='tab:blue', linewidth=2)
+    if 'val_loss' in history_dict:
+        plt.plot(epochs, history_dict['val_loss'], label='Validation Loss', color='tab:orange', linewidth=2)
+    plt.xlabel("Epoch", fontsize=12)
+    plt.ylabel("Loss", fontsize=12)
+    plt.title(f"{title_prefix} Loss per Epoch", fontsize=14)
+    plt.legend(loc='upper right', fontsize=10)
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    # --- Accuracy ---
+    plt.subplot(1, 2, 2)
+    if 'accuracy' in history_dict:
+        plt.plot(epochs, history_dict['accuracy'], label='Train Accuracy', color='tab:blue', linewidth=2)
+    if 'val_accuracy' in history_dict:
+        plt.plot(epochs, history_dict['val_accuracy'], label='Validation Accuracy', color='tab:orange', linewidth=2)
+    plt.xlabel("Epoch", fontsize=12)
+    plt.ylabel("Accuracy", fontsize=12)
+    plt.title(f"{title_prefix} Accuracy per Epoch", fontsize=14)
+    plt.legend(loc='lower right', fontsize=10)
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
+
+
 
 # si on veut des graphes comparatifs
 # a terminer le cas échéant
