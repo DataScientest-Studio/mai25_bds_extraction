@@ -27,9 +27,9 @@ class MultiModalVoter(BaseEstimator, ClassifierMixin):
     
     def predict_proba(self, X, mode="mmo"):
         if mode == "txt":
-            return self.predict_img_proba(X)
-        if mode == "img":
             return self.predict_txt_proba(X)
+        if mode == "img":
+            return self.predict_img_proba(X)
         proba_img = self.predict_img_proba(X)
         proba_txt = self.predict_txt_proba(X)
         if self.method == "average":
