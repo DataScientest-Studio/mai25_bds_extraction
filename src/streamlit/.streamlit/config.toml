@@ -1,0 +1,15 @@
+[theme]
+primaryColor = "#E24768"
+backgroundColor = "#111111"
+secondaryBackgroundColor = "#31333E"
+codeBackgroundColor = "#212228"
+textColor = "#FAFAFA"
+
+
+font = "sans-serif"
+baseFontSize = 24
+
+headingFont = "sans-serif"
+headingFontSizes = ["120", "80", "52", "44", "36", "30"]
+
+codeFont = "monospace"
