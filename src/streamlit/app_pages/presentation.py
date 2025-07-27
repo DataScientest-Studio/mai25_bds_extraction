@@ -1,13 +1,14 @@
+from pyvis.network import Network
 import streamlit as st
-
+import streamlit.components.v1 as components
+import json
 from assets import style
 from assets import PATHS
 
 sections = [
-    "Un bout de lecture",
-    "Un bout d'art",
-    "Quelques données",
-    "Et un beau graphique"
+    "Description du dataset",
+    "Extraits",
+    "Un dataset équilibré"
     ]
 
 section_counter = 0
@@ -21,9 +22,63 @@ def next_section():
 
 
 def show():
-    st.title("Page de présentation")
-    st.subheader("Bienvenue 👋")
-    st.write("Ceci est une page d'accueil avec du contenu lorem ipsum.")
+    st.title("Classification de documents scannés")
+    
+    st.subheader("Processus interactif")
+
+    # Création du graphe avec fond noir et texte blanc
+    net = Network(height="600px", width="100%", bgcolor="#111111", font_color="white", directed=True)
+
+    # ----- Définition des nœuds -----
+    net.add_node("A", label="IIT-CDIP", title="7 000 000 images scannées", color="#56BDED")
+    net.add_node("B", label="RVL-CDIP", title="400 000 images.tif, nuances de gris, 1000 px, 16 catégories", color="#56BDED")
+    net.add_node("C", label="Images initiales", title="Images originales issues du scan", color="#5098F8")
+    net.add_node("C2", label="Metadata", title="Métadonnées associées aux images", color="#5098F8")
+    net.add_node("D", label="Texte océrisé", title="Texte obtenu via OCR", color="#5098F8")
+    net.add_node("E", label="Images pré-processées", title="Images transformées pour l’analyse", color="#E24768")
+    net.add_node("F", label="Caractéristiques extraites", title="Features visuelles extraites", color="#E24768")
+    net.add_node("G", label="Echantillons de travail", title="Échantillons utilisés pour l’entraînement", color="#E24768")
+
+    # ----- Connexions (flèches) -----
+    net.add_edge("A", "B")
+    net.add_edge("A", "C2")
+    net.add_edge("A", "C")
+    net.add_edge("A", "D")
+    net.add_edge("B", "E")
+    net.add_edge("B", "F")
+    net.add_edge("B", "G")
+
+    
+    options = {
+        "layout": {
+            "hierarchical": {
+                "enabled": True,
+                "direction": "UD",
+                "sortMethod": "directed"
+            }
+        },
+        "physics": {
+            "enabled": False
+        },
+        "edges": {
+            "arrows": {
+                "to": {"enabled": True}
+            }
+        },
+        "nodes": {
+            "font": {
+                "color": "white"
+            }
+        }
+    }
+
+    net.set_options(json.dumps(options))
+
+    # Génère et affiche le graphe
+    net.save_graph("graph.html")
+    with open("graph.html", "r", encoding="utf-8") as f:
+        html = f.read()
+    components.html(html, height=600, scrolling=True)
 
     next_section()
     st.markdown(f"""Lorsque j’avais six ans j’ai vu, une fois, une magnifique
