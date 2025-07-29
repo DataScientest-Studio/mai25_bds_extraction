@@ -10,6 +10,6 @@ font = "sans-serif"
 baseFontSize = 24
 
 headingFont = "sans-serif"
-headingFontSizes = ["120", "80", "52", "44", "36", "30"]
+headingFontSizes = ["100", "70", "52", "44", "36", "30"]
 
 codeFont = "monospace"
