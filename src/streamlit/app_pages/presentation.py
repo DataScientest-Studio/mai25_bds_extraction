@@ -7,8 +7,6 @@ from assets import style
 from assets import PATHS
 from PIL import Image
 import os
-base_path = os.path.dirname(__file__)  # chemin du dossier app_pages/
-csv_path = os.path.join(base_path, "illustrations", "descriptions.csv")
 
 sections = [
     "Description du dataset",
@@ -106,12 +104,12 @@ def show():
     next_section()
     st.markdown(f"""Dans le nuage de mots représentatif de nos données, on retrouve bien le champ lexical de l'industrie du tabac
                 """)
-    st.image(os.path.join(base_path, "illustrations", "nuage_mots.png"), use_container_width=True)
+    st.image(PATHS.streamlit_images / "nuage_mots.png", use_container_width=True)
 
     st.markdown(f"""Pour chaque catégorie de RVL-CDIP, une image et le texte qui en a été extrait vous sont présentés
                 """)
     # Chargement du CSV
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(os.path.join(PATHS.streamlit, "assets", "images", "descriptions.csv"))
 
     # Fonction pour tronquer à N mots
     def truncate_text(text, max_words=50):
@@ -125,7 +123,7 @@ def show():
         with st.expander(f"Catégorie {index}: {row['categorie']}"):
             col1, col2 = st.columns([1, 2])
             with col1:
-                image_path = os.path.join(base_path, "illustrations", row["image"])
+                image_path = os.path.join(PATHS.streamlit, "assets", "images", row["image"])
                 st.image(image_path, use_container_width=True)
             with col2:
                 st.markdown(truncate_text(row["text"], max_words=50))
@@ -133,7 +131,7 @@ def show():
     next_section()
     st.markdown(f"""Les 16 catégories sont parfaitement équilibrées: 
                 """)
-    file_path = os.path.join(base_path, "illustrations", "categories_equilibrees.html")
+    file_path = os.path.join(PATHS.streamlit, "assets", "images", "categories_equilibrees.html")
     with open(file_path, 'r', encoding='utf-8') as f:
         components.html(f.read(), height=500)
 
@@ -144,47 +142,47 @@ def show():
                 """)
     with st.expander("La largeur"):
 
-        st.image(os.path.join(base_path, "illustrations", "histogramme_largeurs.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "hauteur_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_largeurs.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "hauteur_equilibrees.png"), use_container_width=True)
 
     with st.expander("La netteté"):
 
-        st.image(os.path.join(base_path, "illustrations", "histogramme_sharpness.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "sharpness_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_sharpness.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "sharpness_equilibrees.png"), use_container_width=True)
 
 
     with st.expander("Le bruit"):
-        st.image(os.path.join(base_path, "illustrations", "histogramme_noise.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "noise_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_noise.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "noise_equilibrees.png"), use_container_width=True)
 
 
     with st.expander("Le ratio de pixels blancs"):
-        st.image(os.path.join(base_path, "illustrations", "histogramme_ratio_b.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "ratio_b_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_ratio_b.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "ratio_b_equilibrees.png"), use_container_width=True)
 
 
     with st.expander("Le ratio de pixels noirs"):
-        st.image(os.path.join(base_path, "illustrations", "histogramme_ratio_n.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "ratio_n_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_ratio_n.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "ratio_n_equilibrees.png"), use_container_width=True)
 
     st.markdown(f"""Pour le nombre de lignes et de colonnes détectées par computer vision, il est intéressant de remarquer que même si les valeurs ne sont pas exactes, elles offrent un bon ordre de grandeur, voici quelques illustrations:
                 """)
     col1, col2 = st.columns([1, 1])
     with col1:
-        st.image(os.path.join(base_path, "illustrations", '2072197187.tif_lignes.png'), width=600)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", '2072197187.tif_lignes.png'), width=600)
     with col2:
-        st.image(os.path.join(base_path, "illustrations", '2072197187.tif_colonnes.png'), width=600)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", '2072197187.tif_colonnes.png'), width=600)
 
     col1, col2 = st.columns([1, 1])
     with col1:
-        st.image(os.path.join(base_path, "illustrations", '514409402_514409407.tif_lignes.png'), width=600)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", '514409402_514409407.tif_lignes.png'), width=600)
     with col2:
-        st.image(os.path.join(base_path, "illustrations", '514409402_514409407.tif_colonnes.png'), width=600)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", '514409402_514409407.tif_colonnes.png'), width=600)
 
 
     #debugging
-    #img1 = Image.open(os.path.join(base_path, "illustrations", '2072197187.tif_lignes.png'))
-    #img2 = Image.open(os.path.join(base_path, "illustrations", '2072197187.tif_colonnes.png'))
+    #img1 = Image.open(os.path.join(PATHS.streamlit, "assets", "images", '2072197187.tif_lignes.png'))
+    #img2 = Image.open(os.path.join(PATHS.streamlit, "assets", "images", '2072197187.tif_colonnes.png'))
     #st.write("Lignes DPI:", img1.info.get("dpi", "Non défini")) 
     #st.write("Colonnes DPI:", img2.info.get("dpi", "Non défini"))
     #st.write("Taille en pixels (lignes):", img1.size)
@@ -192,10 +190,10 @@ def show():
 
 
     with st.expander("Le nombre de lignes"):
-        st.image(os.path.join(base_path, "illustrations", "histogramme_nb_lignes.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "nb_lignes_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_nb_lignes.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "nb_lignes_equilibrees.png"), use_container_width=True)
 
 
     with st.expander("Le nombre de colonnes"):
-        st.image(os.path.join(base_path, "illustrations", "histogramme_nb_colonnes.png"), use_container_width=True)
-        st.image(os.path.join(base_path, "illustrations", "nb_col_equilibrees.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "histogramme_nb_colonnes.png"), use_container_width=True)
+        st.image(os.path.join(PATHS.streamlit, "assets", "images", "nb_col_equilibrees.png"), use_container_width=True)
