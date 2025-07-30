@@ -50,7 +50,7 @@ LABELS = {
         }
 
 
-def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", label_dict=None, save_path=None):
+def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", label_dict=LABELS, save_path=None):
     n_classes = 16
     labels = list(range(n_classes))
     if label_dict:
