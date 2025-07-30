@@ -76,9 +76,14 @@ Voici le processus en image :
         st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,42""")
         st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm.png"), caption="Matrice de confusion pour le LGBM")
 
-    with st.expander("Resultats du LGBM Classifier"):
-        st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,42""")
-        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm.png"), caption="Matrice de confusion pour le LGBM")
+    with st.expander("Resultats du XGBoost Classifier"):
+        st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,37""")
+        col1, col2 = st.columns([0.4, 0.6])
+        with col1:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","xgb_spider.png"), caption="Représentation de l'accuracy du XGBoost")
+
+        with col2:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","xgb_cm.png"), caption="Matrice de confusion pour le XGBoost")
 
     with st.expander("Resultats du LGBM Classifier"):
         st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,42""")
@@ -96,8 +101,8 @@ Voici le processus en image :
     st.subheader("Conclusions sur le machine learning appliqué aux images")
     data2 = pd.DataFrame({
         'Model': ['LGBMClassifier', 'XGBClassifier', 'SGDCLassifier'],
-        'Durée de Bayes Search (min)': [72, 00, 00],
-        'F1 Score sur le set de valisation': [0.42, 0.00, 0.00]
+        'Durée de Bayes Search (min)': [72, 323, 00],
+        'F1 Score sur le set de valisation': [0.42, 0.37, 0.00]
     })
     st.table(data2)
     
@@ -111,10 +116,10 @@ Cependant, il n’est pas pertinent de continuer à utiliser des algorithmes de 
 
     st.subheader("Préparation des images pour le DeepLearning")
     st.markdown(f"""Deux réseaux de neurones classiques ont été étudiés pour cette partie de DeepLearning: VGG16 et ResNet50. Dans les deux cas, sont attendues des images au format JPEG avec 3 canaux de couleur, nos images ont donc été converties sous ce nouveau format.\n
-                Aussi, aucune augmentation n'a été effectuée:
+Aussi, aucune augmentation n'a été effectuée:
 - D'une part les images scannées, représentant du texte ne s'y prêtent pas: pas de rotation aléatoire, ni de symértries
 - D'autre part, les quelques augmentations testées (zoom et légères translations) ont fortement fait chuter les performances des modèles.
-                """)
+""")
     
 
     st.subheader("Résultats VGG16")

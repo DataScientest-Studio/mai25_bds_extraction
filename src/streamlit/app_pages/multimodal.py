@@ -40,7 +40,7 @@ def show():
         image_path = get_rvl_image_path(image_id)
         st.image(image_path, use_container_width=True)
     st.caption(LABELS[8])
-        st.text("Quasiment aucune information textuelle n'est fournie pour un dossier")
+    st.text("Quasiment aucune information textuelle n'est fournie pour un dossier")
     with col2:
         subcol1, subcol2 = st.columns([1, 1])
         with subcol1:

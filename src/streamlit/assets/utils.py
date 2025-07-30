@@ -2,8 +2,10 @@
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import precision_score
 
-from assets import PATHS, CLASSES
+from assets import PATHS, LABELS
 
 def get_rvl_image_path(document_id):
     """Return given image_path"""
@@ -27,43 +29,94 @@ def get_random_image_ids(
         df_labels = df_labels[df_labels.label.isin(labels)]
     return list(df_labels.sample(quantity, random_state=random_state).index)
 
-def draw_spider_graph(model_names:list[str], y_preds:list[np.array], y_evals:list[np.array], axe):
 
-    assert len(model_names = len(y_preds == len(y_evals)))
+LABELS = {
+        0: 'letter',
+        1: 'form',
+        2: 'email',
+        3: 'handwritten',
+        4: 'advertisement',
+        5: 'scientific report',
+        6: 'scientific publication',
+        7: 'specification',
+        8: 'file folder',
+        9: 'news article',
+        10: 'budget',
+        11: 'invoice',
+        12: 'presentation',
+        13: 'questionnaire',
+        14: 'resume',
+        15: 'memo'
+        }
 
-    # draw graphs
-    plain_labels = CLASSES.values()
-    angles = np.linspace(0, 2*np.pi, len(plain_labels), endpoint=False)
-    angles = np.concatenate((angles, [angles[0]]))
-    for y_pred, y_eval, model_name in zip(y_preds, y_evals, model_names):    
-        precisions = precision_score(y_eval, y_pred, average=None).tolist() #, labels=list(range(16)))
-        precisions.append(precisions[0])
-        axe.plot(angles, precisions, '.-', linewidth=1, label=model_name)
-        axe.fill(angles, precisions, alpha=0.25)
 
-    # improve visual render        
+def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", label_dict=LABELS, save_path=None):
+    n_classes = 16
+    labels = list(range(n_classes))
+    if label_dict:
+        label_names = [label_dict[i] for i in labels]
+    else:
+        label_names = [str(i) for i in labels]
+
+    precisions = precision_score(y_true, y_pred, average=None, labels=labels)
+    precisions = np.append(precisions, precisions[0])  # boucle
+
+    angles = np.linspace(0, 2 * np.pi, n_classes, endpoint=False).tolist()
+    angles += angles[:1]
+
+    # Création figure + axe polar
+    fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(8, 8))
+    fig.patch.set_facecolor('black')
+    axe.set_facecolor('black')
+
+    # Couleurs
+    line_color = '#4FC3F7'
+    fill_color = '#4FC3F7'
+    text_color = 'white'
+    grid_color = '#888888'
+
+    axe.plot(angles, precisions, 'o-', linewidth=2, color=line_color)
+    axe.fill(angles, precisions, alpha=0.25, color=fill_color)
+
     axe.set_theta_offset(np.pi / 2)
     axe.set_theta_direction(-1)
     axe.set_ylim(0, 1)
-    axe.set_rlabel_position(0)
-    axe.grid(True)
-    axe.set_thetagrids([], [])  # Supprime les labels d’angle (0°, 45°, etc.)
-    axe.set_rlabel_position(angles[1]/np.pi*180/2)  # angle en degrés
-    for label in axe.get_yaxis().get_ticklabels():
-        label.set_fontsize(8)  # ou 7, 6, etc.
-    label_angles = np.degrees(angles[:-1])    
-    for i, label in enumerate(plain_labels):
+
+    axe.set_xticks(angles[:-1])
+    axe.set_xticklabels([])
+    axe.set_thetagrids([])
+    axe.set_rlabel_position(12)
+
+    axe.tick_params(colors=text_color)
+    axe.spines['polar'].set_color(grid_color)
+    axe.grid(color=grid_color)
+
+    for i in range(n_classes):
         angle_rad = angles[i]
-        alignment = 'left' if 0 < round(label_angles[i]) < 180 else ('right' if 180 < round(label_angles[i]) < 360 else 'center')
         axe.text(
             angle_rad,
-            1.05,  # rayon légèrement supérieur à 1 pour éviter le chevauchement
-            label,
-            horizontalalignment=alignment,
+            1.15,
+            label_names[i],
+            horizontalalignment='center',
             verticalalignment='center',
-            size=9
+            fontsize=12,
+            color=text_color
         )
-    axe.set_title("Précision par classe", size=15, y=1.08)
-    axe.legend(loc="upper right", bbox_to_anchor=(1.1, 1.1))
+        angle_rad = angles[i]
     
-        
+        # Ligne depuis le centre jusqu'au bord
+        axe.plot([angle_rad, angle_rad], [0, 1], color=grid_color, linewidth=0.5, linestyle='dashed')
+
+    axe.set_yticks([0.25, 0.5, 0.75, 1.0])
+    axe.set_yticklabels(['0.25', '0.5', '0.75', '1.0'], color=text_color, fontsize=8)
+    axe.set_title(title, size=14, y=1.1, color=text_color)
+
+
+    plt.tight_layout()
+
+    if save_path:
+        plt.savefig(save_path, dpi=300, facecolor='black')
+    else:
+        plt.show()
+
+    plt.close()
