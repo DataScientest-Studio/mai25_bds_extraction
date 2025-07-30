@@ -72,16 +72,19 @@ Voici le processus en image :
     
     st.subheader("Résultats du machine learning sur notre échantillon de 10 000 images")
     
-    with st.expander("Resultats du LGBM Classifier"):
-        st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,42""")
-        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm.png"), caption="Matrice de confusion pour le LGBM")
+    with st.expander("Resultats du SGD Classifier"):
+        st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,17""")
+        col1, col2 = st.columns([0.4, 0.6])
+        with col1:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","sgd_spider.png"), caption="Représentation de l'accuracy du XGBoost")
+        with col2:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","sgd_cm.png"), caption="Matrice de confusion pour le XGBoost")
 
     with st.expander("Resultats du XGBoost Classifier"):
         st.markdown(f"""Avec les meilleurs paramètres (Grid Search): F1 Score 0,37""")
         col1, col2 = st.columns([0.4, 0.6])
         with col1:
             st.image(os.path.join(PATHS.streamlit, "assets", "images","xgb_spider.png"), caption="Représentation de l'accuracy du XGBoost")
-
         with col2:
             st.image(os.path.join(PATHS.streamlit, "assets", "images","xgb_cm.png"), caption="Matrice de confusion pour le XGBoost")
 
@@ -101,8 +104,8 @@ Voici le processus en image :
     st.subheader("Conclusions sur le machine learning appliqué aux images")
     data2 = pd.DataFrame({
         'Model': ['LGBMClassifier', 'XGBClassifier', 'SGDCLassifier'],
-        'Durée de Bayes Search (min)': [72, 323, 00],
-        'F1 Score sur le set de valisation': [0.42, 0.37, 0.00]
+        'Durée de Bayes Search (min)': [72, 323, 3],
+        'F1 Score sur le set de valisation': [0.42, 0.37, 0.17]
     })
     st.table(data2)
     
@@ -112,6 +115,16 @@ Cependant, il n’est pas pertinent de continuer à utiliser des algorithmes de 
 - Trop de dimensions : nos images contiennent un grand nombre de pixels. Il a donc fallu perdre en résolution en changeant leur taille, et effectuer une PCA pour être capable de travailler dessus. Cela entraîne une grande perte d’information.
 """)
     
+    st.markdown(f"""Pour le LGBM, avec les meilleurs paramètres, cette fois relancé sur l'ensemble des 400 000 images\nF1 Score 0,55""")
+    col1, col2 = st.columns([0.4, 0.6])
+    with col1:
+        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_spider_all_images.png"), caption="Représentation de l'accuracy du LGBM")
+
+    with col2:
+        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm_all_images.png"), caption="Matrice de confusion pour le LGBM")
+
+    
+
     next_section()
 
     st.subheader("Préparation des images pour le DeepLearning")

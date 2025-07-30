@@ -30,7 +30,9 @@ def get_random_image_ids(
     return list(df_labels.sample(quantity, random_state=random_state).index)
 
 
-LABELS = {
+def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", save_path=None):
+    n_classes = 16
+    label_dict== {
         0: 'letter',
         1: 'form',
         2: 'email',
@@ -48,10 +50,6 @@ LABELS = {
         14: 'resume',
         15: 'memo'
         }
-
-
-def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", label_dict=LABELS, save_path=None):
-    n_classes = 16
     labels = list(range(n_classes))
     if label_dict:
         label_names = [label_dict[i] for i in labels]
@@ -119,4 +117,40 @@ def draw_spider_graph_dark(y_true, y_pred, title="Précision par classe", label_
     else:
         plt.show()
 
+    plt.close()
+
+
+def conf_matrix_dark(cm, save_path):
+    plt.figure(figsize=(10, 8), facecolor='black')
+
+    # Créer le heatmap sans annotations
+    ax = sns.heatmap(
+        cm,
+        annot=False,
+        fmt='d',
+        cmap='Blues_r',
+        cbar=False,
+        linewidths=0.5,
+        linecolor='gray'
+    )
+    
+    # Ajouter les annotations manuellement
+    threshold = cm.max() / 2  # Seuil pour changer la couleur du texte
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            value = cm[i, j]
+            color = 'black' if value > threshold else 'white'
+            ax.text(j + 0.5, i + 0.5, value,
+                    ha='center', va='center',
+                    color=color, fontsize=12)
+    
+    # Ajustements esthétiques
+    plt.title("Matrice de confusion", color='white', fontsize=16)
+    plt.xlabel("Classe prédite", color='white')
+    plt.ylabel("Classe réelle", color='white')
+    plt.xticks(color='white')
+    plt.yticks(color='white')
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=300, transparent=True)
     plt.close()
