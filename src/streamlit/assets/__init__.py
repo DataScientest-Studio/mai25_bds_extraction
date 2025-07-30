@@ -22,10 +22,10 @@ PATHS = SimpleNamespace(
 try:
     df = pd.read_parquet(
         os.path.join(PATHS.metadata, "df_labels_mapping.parquet"))
-    CLASSES = dict(zip(df.index, df.values[:,0]))
+    LABELS = dict(zip(df.index, df.values[:,0]))
 except:
     print("unable to load CLASSES. Imputing default value")
-    CLASSES = {
+    LABELS = {
         0: 'letter',
         1: 'form',
         2: 'email',

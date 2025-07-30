@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 
 from assets import style
-from assets import PATHS, CLASSES
+from assets import PATHS, LABELS
 from assets.utils import get_rvl_image_path, get_random_image_ids
 
 sections = [
@@ -39,7 +39,7 @@ def show():
         image_id = get_random_image_ids(labels=8, random_state = 4)[0]
         image_path = get_rvl_image_path(image_id)
         st.image(image_path, use_container_width=True)
-        st.caption(CLASSES[8])
+    st.caption(LABELS[8])
         st.text("Quasiment aucune information textuelle n'est fournie pour un dossier")
     with col2:
         subcol1, subcol2 = st.columns([1, 1])
@@ -47,12 +47,12 @@ def show():
             image_id = get_random_image_ids(labels=label_left, random_state = 123)[0]
             image_path = get_rvl_image_path(image_id)
             st.image(image_path, use_container_width=True)
-            st.caption(CLASSES[label_left])
+        st.caption(LABELS[label_left])
         with subcol2:
             image_id = get_random_image_ids(labels=label_right, random_state = 123)[0]
             image_path = get_rvl_image_path(image_id)
             st.image(image_path, use_container_width=True)
-            st.caption(CLASSES[label_right])
+        st.caption(LABELS[label_right])
         st.text("Il est difficile sans aller lire le document de définir s'il s'agit d'une lettre ou d'un rapport scientifique.")
 
     st.markdown(f"""<h3>Confrontation aux résultats obtenus</h3>""", unsafe_allow_html = True)
