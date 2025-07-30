@@ -178,7 +178,9 @@ Le F1-score final obtenu sur le set de validation de 4000 images: 0,78
         with col2:
             st.image(os.path.join(PATHS.streamlit, "assets", "images","ResNet_2_cm.png"), caption="Matrice de confusion - ResNet50 - 10 couches")
 
-
+        st.markdown(f"""Le dégel manuel des couches rend l'apprentissage un peu chaotique, avec des variations fortes lors du dégel de nouvelles couches. Il faudrait rendre ce processus automatique (ça a été fait pour VGG16 qui donne de meilleurs résultats)
+    """)
+        
     st.subheader("Résultats VGG16")
     with st.expander("VGG16 - 4 couches de fine-tuning"):
         st.markdown(f"""Le premier VGG16 avec des résultats intéressants a subi un peu de fine-tuning: les 4 dernières couches de convolution ont été dégelées\n
@@ -196,9 +198,9 @@ Le F1-score final obtenu sur le set de validation de 4000 images: 0,79
             st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_1_cm.png"), caption="Matrice de confusion - VGG16 - 4 couches")
 
     with st.expander("VGG16 -  progressive unfreezing"):
-        st.markdown(f"""Cette fois, un nouveau callback a été ajouté, qui dégèle 5 nouvelles couches à fine-tuner quand la fonction de perte stagne\n
+        st.markdown(f"""Cette fois, un nouveau callback a été ajouté, qui dégèle 5 nouvelles couches à fine-tuner quand la fonction de perte stagne pendant 3 epochs\n
 Pour limiter le temps d'execution, l'ensemble a été fait sur un échantillon de 40 000 images (1/10 de l'ensemble des images)
-Le F1-score final obtenu sur le set de validation de 4000 images: 0,79
+Le F1-score final obtenu sur le set de validation de 4000 images: 
     """)
         #st.image(os.path.join(PATHS.streamlit, "assets", "images","VGG16_2_history.png"), caption="Evaluation de la fonction de perte et de l'accuracy au fil des epoch")
         st.markdown(f"""50 epochs avaient été programmés mais l'apprentissage s'est arrêté à """)

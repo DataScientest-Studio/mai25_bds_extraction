@@ -110,6 +110,26 @@ def show():
                 """)
     # Chargement du CSV
     df = pd.read_csv(os.path.join(PATHS.streamlit, "assets", "images", "descriptions.csv"))
+    df = df.sort_values(by="label").reset_index(drop=True)
+    # Dictionnaire des noms de catégories
+    LABELS = {
+        0: 'letter',
+        1: 'form',
+        2: 'email',
+        3: 'handwritten',
+        4: 'advertisement',
+        5: 'scientific report',
+        6: 'scientific publication',
+        7: 'specification',
+        8: 'file folder',
+        9: 'news article',
+        10: 'budget',
+        11: 'invoice',
+        12: 'presentation',
+        13: 'questionnaire',
+        14: 'resume',
+        15: 'memo'
+    }
 
     # Fonction pour tronquer à N mots
     def truncate_text(text, max_words=50):
@@ -119,11 +139,13 @@ def show():
         return text
 
     # Affichage des parties
-    for index, row in df.iterrows():
-        with st.expander(f"Catégorie {index}: {row['categorie']}"):
+    for _, row in df.iterrows():
+        label_id = row["label"]
+        label_name = LABELS.get(label_id, "inconnu")  # fallback au cas où
+        with st.expander(f"Catégorie {label_id} : {label_name}"):
             col1, col2 = st.columns([1, 2])
             with col1:
-                image_path = os.path.join(PATHS.streamlit, "assets", "images", row["image"])
+                image_path = os.path.join(PATHS.streamlit, "assets", "images", f"label_{row['label']}.png")
                 st.image(image_path, use_container_width=True)
             with col2:
                 st.markdown(truncate_text(row["text"], max_words=50))
