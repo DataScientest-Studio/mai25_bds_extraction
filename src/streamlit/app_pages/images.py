@@ -50,7 +50,7 @@ Voici le processus en image :
     st.subheader("Sélection du meilleur modèle et des meilleurs paramètres")
     st.markdown(f""" Les étapes: 
     - Echantillon de 10 000 images (sur 400 000)
-    - PCA pour réduire le nombre de dimensions: on passe de 100 012 à 2000
+    - PCA pour réduire le nombre de dimensions: on passe de 10 012 à 2000
     - Lazy Classifier pour tester, avec les paramètres par défaut, un grand nombre de classifiers
     - Grid Search sur 3 classifiers
     - LGBM : le meilleur classifier pour nos images
@@ -216,10 +216,15 @@ Le F1-score final obtenu sur le set de validation de 4000 images:
 
     st.subheader("Conclusion sur le DeepLearning")
     data3 = pd.DataFrame({
-        'Model': ['ResNet50 - 10 couches', 'ResNet50 - Degel progressif manuel', 'VGG16 - 4 couches', 'VGG16 - Degel progressif automatique'],
-        "Epochs avant arrêt":["18/50", "Etape 1: 9/10 \nEtape 2: 6/10\nEtape 3: 6/10", "25/50", "/50"],
-        "Durée d'entrainement": ["2h45", "Etape 1: 1h05 \nEtape 2: 2h06\nEtape 3: 2h10", "9h", "h"],
-        'F1 Score sur le set de validation': [0.74, 0.78, 0.79, 00]
+    'Model': ['ResNet50 - 10 couches', 'ResNet50 - Degel progressif manuel', 'VGG16 - 4 couches', 'VGG16 - Degel progressif automatique'],
+    "Epochs avant arrêt": ["18/50", "Etape 1: 9/10 <br>Etape 2: 6/10<br>Etape 3: 6/10", "25/50", "/50"],
+    "Durée d'entrainement": ["2h45", "Etape 1: 1h25 <br>Etape 2: 1h11<br>Etape 3: 1h20", "9h", "h"],
+    'F1 Score sur le set de validation': [0.74, 0.78, 0.79, 0.00]
     })
-    st.table(data3)
+
+    # Création du tableau HTML
+    table_html = data3.to_html(escape=False, index=False)
+
+    # Affichage dans Streamlit
+    st.markdown(table_html, unsafe_allow_html=True)
     

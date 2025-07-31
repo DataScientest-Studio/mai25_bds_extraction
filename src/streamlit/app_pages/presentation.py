@@ -87,7 +87,7 @@ def show():
     components.html(html, height=600, scrolling=True)
 
     st.markdown(f"""
-    - 2000 documents n'ont pas de données textuelles associées. 
+    - Pour 2000 documents, aucune donnée océrisée n'était disponible dans IIT-CDIP, et elles ont été récupérées avec PyTessaract. 
     - 25 echantillons équilibrés (conservation des proportions sur train/val/test et sur les labels), pour nos développements et tests internes sur des jeux de données réduits : 
         - 5 tailles (1000, 4000, 10000, 40000 et 10000 documents) 
         - 5 random states différents
