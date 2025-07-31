@@ -63,7 +63,7 @@ def show():
     - Données bruyantes ou mal OCRisées
     - Incohérences dans les métadonnées
     """)
-    st.image(os.path.join(PATHS.streamlit, "assets", "images","pb_rencontré.png"), caption="Ocr handwritten", use_container_width=True)
+    st.image(os.path.join(PATHS.streamlit, "assets", "images","pb_rencontre.png"), caption="Ocr handwritten", use_container_width=True)
     st.image(os.path.join(PATHS.streamlit, "assets", "images","valeurs manquantes.png"), caption="Valeurs manquantes", use_container_width=True)
     st.header("🧠 Extraction automatique du contenu")
     st.markdown("""
