@@ -66,9 +66,9 @@ Voici le processus en image :
     st.table(data)
     
     st.markdown(f"""Pour la suite, ont été retenus:
-    - LGBMClassifier
-    - XGBClassifier
-    - SGDClassifier (non testé par le lazy classifier mais recommandé dans le cours dans le cas de gros échantillons)""")
+- LGBMClassifier
+- XGBClassifier
+- SGDClassifier (non testé par le lazy classifier mais recommandé dans le cours dans le cas de gros échantillons)""")
     
     st.subheader("Résultats du machine learning sur notre échantillon de 10 000 images")
     
@@ -98,7 +98,19 @@ Voici le processus en image :
             st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm.png"), caption="Matrice de confusion pour le LGBM")
 
     
-        
+    st.subheader("LGBM lancé sur le dataset entier")
+    st.markdown(f"""Pour le LGBM, avec les meilleurs paramètres, cette fois :
+- entrainé sur 320 000 images 
+- testé sur 4 000 images\n
+F1 Score 0,55""")
+    col1, col2 = st.columns([0.4, 0.6])
+    with col1:
+        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_spider_all_images.png"), caption="Représentation de l'accuracy du LGBM")
+
+    with col2:
+        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm_all_images.png"), caption="Matrice de confusion pour le LGBM")
+
+    
         
 
     st.subheader("Conclusions sur le machine learning appliqué aux images")
@@ -115,18 +127,7 @@ Cependant, il n’est pas pertinent de continuer à utiliser des algorithmes de 
 - Trop de dimensions : nos images contiennent un grand nombre de pixels. Il a donc fallu perdre en résolution en changeant leur taille, et effectuer une PCA pour être capable de travailler dessus. Cela entraîne une grande perte d’information.
 """)
     
-    st.markdown(f"""Pour le LGBM, avec les meilleurs paramètres, cette fois :
-- entrainé sur 320 000 images 
-- testé sur 4 000 images\n
-F1 Score 0,55""")
-    col1, col2 = st.columns([0.4, 0.6])
-    with col1:
-        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_spider_all_images.png"), caption="Représentation de l'accuracy du LGBM")
 
-    with col2:
-        st.image(os.path.join(PATHS.streamlit, "assets", "images","lgbm_cm_all_images.png"), caption="Matrice de confusion pour le LGBM")
-
-    
 
     next_section()
 
@@ -159,9 +160,9 @@ Le F1-score final obtenu sur le set de validation de 4000 images: 0,74
 
     with st.expander("ResNet50 - Dégel progressif manuel des couches"):
         st.markdown(f"""Cette fois, pour essayer d’apprendre mieux les particularités de nos images:
-Etape 1:  on commence sans aucune couche dégelée,  puis on lance 10 epochs (en réalité, l'entraînement s’est arrêté à 7 car il n’apprenait plus)
-Etape 2: on garde gelées 140 couches (sur 177) donc 37 couches sont dégelées et on relance 10 epochs
-Etape3: on garde 120 couches gelées, donc 57 couches dégelées au total et on relance 10 epochs
+- Etape 1:  on commence sans aucune couche dégelée,  puis on lance 10 epochs (en réalité, l'entraînement s’est arrêté à 7 car il n’apprenait plus)
+- Etape 2: on garde gelées 140 couches (sur 177) donc 37 couches sont dégelées et on relance 10 epochs
+- Etape3: on garde 120 couches gelées, donc 57 couches dégelées au total et on relance 10 epochs
 
 Les “history” des 3 entrainements ont été concaténées et voici leur résultat: """)
 
@@ -197,8 +198,8 @@ Le F1-score final obtenu sur le set de validation de 4000 images: 0,79
         with col2:
             st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_1_cm.png"), caption="Matrice de confusion - VGG16 - 4 couches")
 
-    with st.expander("VGG16 -  progressive unfreezing"):
-        st.markdown(f"""Cette fois, un nouveau callback a été ajouté, qui dégèle 5 nouvelles couches à fine-tuner quand la fonction de perte stagne pendant 3 epochs\n
+    with st.expander("VGG16 -  Degel progressif automatique des couches"):
+        st.markdown(f"""Cette fois, un nouveau callback a été ajouté, qui dégèle 5 nouvelles couches à fine-tuner quand la fonction de perte stagne pendant 2 epochs (et on part d'un VGG16 avec 5 couches dégelées dès le départ)\n
 Pour limiter le temps d'execution, l'ensemble a été fait sur un échantillon de 40 000 images (1/10 de l'ensemble des images)
 Le F1-score final obtenu sur le set de validation de 4000 images: 
     """)
@@ -217,7 +218,7 @@ Le F1-score final obtenu sur le set de validation de 4000 images:
     data3 = pd.DataFrame({
         'Model': ['ResNet50 - 10 couches', 'ResNet50 - Degel progressif manuel', 'VGG16 - 4 couches', 'VGG16 - Degel progressif automatique'],
         "Epochs avant arrêt":["18/50", "Etape 1: 9/10 \nEtape 2: 6/10\nEtape 3: 6/10", "25/50", "/50"],
-        "Durée d'entrainement": ["2h45", "Etape 1: 1h05 \nEtape 2: 2h06\nEtape 3: 2h10", "h"],
+        "Durée d'entrainement": ["2h45", "Etape 1: 1h05 \nEtape 2: 2h06\nEtape 3: 2h10", "9h", "h"],
         'F1 Score sur le set de validation': [0.74, 0.78, 0.79, 00]
     })
     st.table(data3)

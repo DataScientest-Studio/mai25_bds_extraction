@@ -25,10 +25,10 @@ def next_section():
 
 
 def show():
-    st.title("Classification de documents scannés")
+    st.title("Présentation de notre set de données")
     
     next_section()
-    st.markdown(f"""IIT CDIP Test Collection contient des images haute résolution de documents numérisés (et leur métadonnées), recueillis à partir des archives publiques de procès intentés contre des compagnies de tabac américaines.
+    st.markdown(f"""IIT CDIP Test Collection contient des images haute résolution de documents numérisés (et leur métadonnées), recueillis à partir des archives publiques de procès intentés contre des compagnies de tabac américaines (Legacy Tobacco Documents Library : 14 millions de documents scannés)
                 [Harley et al.](https://adamharley.com/rvl-cdip/) ont nettoyé ces images pour créer RVL-CDIP: 400 000 images en niveaux de gris réparties en 16 catégories, avec 25 000 images par catégorie. Il comprend 320 000 images d'entraînement, 40 000 images de validation et 40 000 images de test. Les images sont redimensionnées de façon à ce que leur plus grande dimension ne dépasse pas 1000 pixels. 
                 """)
     # Création du graphe avec fond noir et texte blanc
@@ -141,7 +141,7 @@ def show():
     # Affichage des parties
     for _, row in df.iterrows():
         label_id = row["label"]
-        label_name = LABELS.get(label_id, "inconnu")  # fallback au cas où
+        label_name = LABELS.get(label_id, "inconnu")  # au cas où je me sois plantée...
         with st.expander(f"Catégorie {label_id} : {label_name}"):
             col1, col2 = st.columns([1, 2])
             with col1:
