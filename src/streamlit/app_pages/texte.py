@@ -42,7 +42,7 @@ def show():
     - Poser les bases pour des analyses NLP avancées
     """)
 
-    st.image(os.path.join(PATHS.streamlit, "assets", "images","pipeline.png"), caption="Objectif du pipeline", use_container_width=True)
+    # st.image(os.path.join(PATHS.streamlit, "assets", "images","pipeline.png"), caption="Objectif du pipeline", use_container_width=True)
 
     st.header("🧹 Prétraitement des données")
     st.markdown("""

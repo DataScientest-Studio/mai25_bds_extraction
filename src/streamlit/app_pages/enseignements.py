@@ -5,8 +5,6 @@ from assets import PATHS
 
 sections = [
     "Enseignements",
-    "Conclusions",
-    "Bilan"
     ]
 
 section_counter = 0
@@ -20,7 +18,7 @@ def next_section():
 
 
 def show():
-    st.title("Enseignements et conclusions")
+    st.title("Conclusion")
 
     next_section()
     with st.expander("Le temps et l'espace : des ressources précieuses"):
@@ -104,29 +102,29 @@ def show():
 
 
 
-    next_section()
-    st.markdown(f"""Ce projet a été l'occasion d'explorer en profondeur les défis et les richesses du machine learning et du deep learning. 
-L’un des principaux obstacles rencontrés a été la gestion du poids des fichiers, qui a mis en lumière l'importance d'une préparation rigoureuse des données et d’une infrastructure adaptée. 
-Très vite, nous avons compris que sans une base solide et bien structurée, les efforts investis dans les modèles eux-mêmes risquaient d’être vains.\n
-L'architecture générale du projet s’est révélée être un point clé : elle a nécessité des ajustements pour garantir la clarté, la cohérence et la pérennité du travail. \n
-À cela s'est ajoutée la complexité du choix entre la multitude de modèles disponibles, chacun demandant une compréhension fine de ses spécificités et un réglage souvent délicat des hyperparamètres.
-Naviguer dans cet écosystème a été formateur, mais également exigeant : entre ajustements techniques, optimisations, essais-erreurs et recherches, chaque étape a contribué à affiner notre compréhension du domaine.\n
-En résumé, un projet dense, stimulant, parfois un peu frustrant, mais toujours enrichissant.""")
+#     next_section()
+#     st.markdown(f"""Ce projet a été l'occasion d'explorer en profondeur les défis et les richesses du machine learning et du deep learning. 
+# L’un des principaux obstacles rencontrés a été la gestion du poids des fichiers, qui a mis en lumière l'importance d'une préparation rigoureuse des données et d’une infrastructure adaptée. 
+# Très vite, nous avons compris que sans une base solide et bien structurée, les efforts investis dans les modèles eux-mêmes risquaient d’être vains.\n
+# L'architecture générale du projet s’est révélée être un point clé : elle a nécessité des ajustements pour garantir la clarté, la cohérence et la pérennité du travail. \n
+# À cela s'est ajoutée la complexité du choix entre la multitude de modèles disponibles, chacun demandant une compréhension fine de ses spécificités et un réglage souvent délicat des hyperparamètres.
+# Naviguer dans cet écosystème a été formateur, mais également exigeant : entre ajustements techniques, optimisations, essais-erreurs et recherches, chaque étape a contribué à affiner notre compréhension du domaine.\n
+# En résumé, un projet dense, stimulant, parfois un peu frustrant, mais toujours enrichissant.""")
 
 
-    # region Bilan
-    next_section()
+    # # region Bilan
+    # next_section()
 
-    with st.expander(""):
-        image_path = PATHS.streamlit_images / "multimodal" / "plomberie.png"
-        st.image(image_path, use_container_width=True)
+    # with st.expander(""):
+    #     image_path = PATHS.streamlit_images / "multimodal" / "plomberie.png"
+    #     st.image(image_path, use_container_width=True)
 
-    st.markdown(f"""
-    - {style.highlight('Efficacité de la combinaisons des forces')}
+    # st.markdown(f"""
+    # - {style.highlight('Efficacité de la combinaisons des forces')}
     
-    - {style.highlight('Croissance de performance au cours des différentes explorations')}
+    # - {style.highlight('Croissance de performance au cours des différentes explorations')}
 
-    - {style.highlight('Explosion combinatoire du nombre de possibilité, qui impose de faire des choix humains')}
+    # - {style.highlight('Explosion combinatoire du nombre de possibilité, qui impose de faire des choix humains')}
 
-    """, unsafe_allow_html=True)
+    # """, unsafe_allow_html=True)
 
