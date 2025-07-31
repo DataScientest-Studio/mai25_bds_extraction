@@ -13,7 +13,6 @@ sections = [
     "Voteurs",
     "Machine Learning",
     "Adaptation CLIP",
-    "Bilan"
     ]
 
 section_counter = 0
@@ -169,21 +168,4 @@ def show():
     with col2:
         image_path = PATHS.streamlit_images / "multimodal" / "spider_clip_mlp.png"
         st.image(image_path, use_container_width=True)
-
-    # region Bilan
-    next_section()
-
-    with st.expander(""):
-        image_path = PATHS.streamlit_images / "multimodal" / "plomberie.png"
-        st.image(image_path, use_container_width=True)
-
-    st.markdown(f"""
-    - {style.highlight('Efficacité de la combinaisons des forces')}
-    
-    - {style.highlight('Croissance de performance au cours des différentes explorations')}
-
-    - {style.highlight('Explosion combinatoire du nombre de possibilité, qui impose de faire des choix humains')}
-
-    """, unsafe_allow_html=True)
-
 

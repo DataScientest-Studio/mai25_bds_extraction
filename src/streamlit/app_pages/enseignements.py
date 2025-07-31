@@ -5,7 +5,8 @@ from assets import PATHS
 
 sections = [
     "Enseignements",
-    "Conclusions"
+    "Conclusions",
+    "Bilan"
     ]
 
 section_counter = 0
@@ -111,4 +112,21 @@ L'architecture générale du projet s’est révélée être un point clé : ell
 À cela s'est ajoutée la complexité du choix entre la multitude de modèles disponibles, chacun demandant une compréhension fine de ses spécificités et un réglage souvent délicat des hyperparamètres.
 Naviguer dans cet écosystème a été formateur, mais également exigeant : entre ajustements techniques, optimisations, essais-erreurs et recherches, chaque étape a contribué à affiner notre compréhension du domaine.\n
 En résumé, un projet dense, stimulant, parfois un peu frustrant, mais toujours enrichissant.""")
+
+
+    # region Bilan
+    next_section()
+
+    with st.expander(""):
+        image_path = PATHS.streamlit_images / "multimodal" / "plomberie.png"
+        st.image(image_path, use_container_width=True)
+
+    st.markdown(f"""
+    - {style.highlight('Efficacité de la combinaisons des forces')}
+    
+    - {style.highlight('Croissance de performance au cours des différentes explorations')}
+
+    - {style.highlight('Explosion combinatoire du nombre de possibilité, qui impose de faire des choix humains')}
+
+    """, unsafe_allow_html=True)
 
