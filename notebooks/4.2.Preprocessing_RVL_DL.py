@@ -3,18 +3,9 @@ import cv2
 from tqdm import tqdm
 import pandas as pd
 
-import sys
-from pathlib import Path
-
-project_root = Path().resolve().parent
-if not project_root in [Path(p).resolve() for p in sys.path]:
-    sys.path.append(str(project_root))
-
-from src import PATHS
-
 BATCH_SIZE = 10000
 
-project_path = project_root
+project_path = "/Users/ben/Work/mle/ds-project/mai25_bds_extraction"
 data_path = os.path.join(project_path, 'data')
 output_base = os.path.join(data_path, 'converted')
 extracted_data_path = os.path.join(data_path, 'extracted')
