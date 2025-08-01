@@ -29,7 +29,7 @@ def show():
     Organisation modulaire du code, séparation claire des fonctions, notebooks structurés (du moins, on a essayé!!), et pipelines revus pour plus d’efficacité.
 
     - **Optimisation de la communication** :  
-    README bien renseigné, fichiers partagés sur Drive, bonne synchronisation d’équipe – même si Slack a connu des pics d'activité.
+    README bien renseigné, fichiers partagés sur drive, bonne synchronisation d’équipe – même si Slack a connu des pics d'activité.
 
     - **Optimisation des temps de traitement** :  
     Tests sur des DataFrames réduits, parallélisation, astuces techniques partagées, et quelques miracles de dernière minute.
