@@ -26,7 +26,7 @@ def show():
 
     st.markdown("""
     - **Optimisation de l’architecture** :  
-    Organisation modulaire du code, séparation claire des fonctions, notebooks structurés (du moins, on a essayé 😅), et pipelines revus pour plus d’efficacité.
+    Organisation modulaire du code, séparation claire des fonctions, notebooks structurés (du moins, on a essayé!!), et pipelines revus pour plus d’efficacité.
 
     - **Optimisation de la communication** :  
     README bien renseigné, fichiers partagés sur Drive, bonne synchronisation d’équipe – même si Slack a connu des pics d'activité.
@@ -35,7 +35,7 @@ def show():
     Tests sur des DataFrames réduits, parallélisation, astuces techniques partagées, et quelques miracles de dernière minute.
 
     - **Une armée de modèles et de paramètres** :  
-    Grid Search, Random Search, tuning à l’infini… Et bien sûr, un **modèle qui tournait encore la veille de la présentation** 😅
+    Grid Search, Random Search, tuning à l’infini… Et bien sûr, un **modèle qui tournait encore la veille de la présentation** 
 
     - **Rigueur & entraide** :  
     Chaque optimisation a été portée par des échanges, des idées partagées, et une belle dynamique d’équipe.
