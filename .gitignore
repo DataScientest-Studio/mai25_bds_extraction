@@ -170,5 +170,5 @@ data*/
 .DS_Store
 
 # temporary model and pipeline ignore
-models*/
-pipelines*/
+/models/
+/pipelines/
