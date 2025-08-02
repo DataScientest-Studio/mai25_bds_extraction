@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.metrics import precision_score
+import joblib
 
 class MultiModalVoter(BaseEstimator, ClassifierMixin):
     def __init__(self, img_model, img_pipeline, txt_model, txt_pipeline, method="average", weights=(0.5, 0.5)):
@@ -135,3 +137,48 @@ class MultiModalLogisticRegressor(BaseEstimator, ClassifierMixin):
         
     def predict(self, X, mode="mmo"):
         return np.argmax(self.predict_proba(X, mode=mode), axis=1)
+
+
+class MultiModalCompositeModel(BaseEstimator, ClassifierMixin):
+    def __init__(self, model_wrappers, classifier):
+        self.model_wrappers = model_wrappers
+        self.classifier = classifier
+        
+    def fit(self, X, y):
+        print("Computing embeddings from model_wrappers...", end = "")
+        X_tr = np.concatenate([
+            mw.predict_proba(X) for mw in self.model_wrappers
+        ], axis=1)
+        print("   Done")
+        print("Fitting classifier...", end="")
+        self.classifier.fit(X_tr, y)
+        print("   Done")
+        return self
+    
+    def predict_proba(self, X):
+        X_tr = np.concatenate([
+            mw.predict_proba(X) for mw in self.model_wrappers
+        ], axis=1)
+        # Pour eviter un warning de LGBM:
+        if hasattr(self.classifier, "feature_name_"):
+            X_tr = pd.DataFrame(X_tr, columns=self.classifier.feature_name_)
+        return self.classifier.predict_proba(X_tr)
+        
+    def predict(self, X):
+        return np.argmax(self.predict_proba(X), axis=1)
+    
+    def save(self, file_path):
+        # pour pouvoir retrouver les model_wrappers associés au chargement.
+        # Attention, il faut qu'ils soient dans le registry des model wrappers, sinon ca ne marchera pas
+        self.classifier._our_own_inputers = "|||".join([mw.name for mw in self.model_wrappers])
+        joblib.dump(self.classifier, file_path)
+
+    @classmethod
+    def load(cls, file_path):
+        classifier = joblib.load(file_path)
+        # pas jojo mais bon...
+        from src.models.model_wrappers import ModelWrapperFactory
+        wrapper_names = classifier._our_own_inputers.split("|||")
+        model_wrappers = [ModelWrapperFactory.load_existing(wn) for wn in wrapper_names]
+        return cls(model_wrappers, classifier)
+
