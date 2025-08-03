@@ -26,7 +26,7 @@ def show():
 
     st.markdown("""
     - **Optimisation de l’architecture** :  
-    Organisation modulaire du code, séparation claire des fonctions, notebooks structurés (du moins, on a essayé!!), et pipelines revus pour plus d’efficacité.
+    Organisation modulaire du code, séparation claire des fonctions, notebooks structurés, et pipelines revus pour plus d’efficacité.
 
     - **Optimisation de la communication** :  
     README bien renseigné, fichiers partagés sur drive, bonne synchronisation d’équipe – même si Slack a connu des pics d'activité.
@@ -41,4 +41,4 @@ def show():
     Chaque optimisation a été portée par des échanges, des idées partagées, et une belle dynamique d’équipe.
     """)
 
-    st.markdown("Un projet où performance rime avec collaboration (et caféine) !")
+    st.markdown("Un projet où performance rime avec perseverance!")
