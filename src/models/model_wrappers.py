@@ -12,6 +12,7 @@ from PIL import Image
 from sklearn.metrics import classification_report, confusion_matrix
 import sys
 from pathlib import Path
+from tensorflow.keras.applications.resnet50 import preprocess_input
 
 project_root = Path().resolve().parent
 if not project_root in [Path(p).resolve() for p in sys.path]:
@@ -128,7 +129,7 @@ class ModelWrapper:
 df_ocr = pd.read_parquet(PATHS.processed_data / "df_txt_ocr1.parquet")
 vectorizer = joblib.load(PATHS.models / "txt_tfid_vectorizer.joblib")
 
-# region TEXT MW FACTORY
+# region TEXT MAKERS
 def make_txt_ml_model_wrapper(name, model_path):
     model = joblib.load(model_path)
 
@@ -148,18 +149,7 @@ def make_txt_ml_model_wrapper(name, model_path):
         proba_prediction_function=predict_proba
     )
 
-# txt_logistic_regressor = make_txt_ml_model_wrapper(
-#     "Text-based Linear Regressor",
-#     PATHS.models / "txt_logistic_regressor.joblib"
-# )
-# txt_random_forest = make_txt_ml_model_wrapper(
-#     "Text-based Random Forest",
-#     PATHS.models / "txt_random_forest.joblib"
-# )
-# txt_naive_bayes = make_txt_ml_model_wrapper(
-#     "Text-based Naive Bayes",
-#     PATHS.models / "txt_naive_bayes.joblib"
-# )
+
 def make_txt_dl_sklearn_model_wrapper(name, model_path):
     model = joblib.load(model_path)
     def preprocess(document_list):
@@ -205,25 +195,10 @@ def make_txt_dl_model_wrapper(name, model_path):
         raise NotImplementedError("ModelWrapper must be created from '.joblib' or '.keras' model")
 
 
-# txt_mlp1 = make_txt_dl_model_wrapper(
-#     "Text-based MLP 1",
-#     PATHS.models / "txt_mlp1.keras"
-# )
-
-# txt_mlp2 = make_txt_dl_model_wrapper(
-#     "Text-based MLP 2",
-#     PATHS.models / "txt_mlp2.joblib"
-# )
-
-# txt_mlp3 = make_txt_dl_model_wrapper(
-#     "Text-based MLP 3",
-#     PATHS.models / "txt_mlp3.joblib"
-# )
-
-
-# region IMAGE MW FACTORY
+# region IMAGE MAKERS
 df_image_features = pd.read_parquet(PATHS.processed_data / "df_img_features_pixels.parquet")
-image_paths = (PATHS.data / pd.read_parquet(PATHS.metadata / "df_filepaths.parquet").rvl_image_path).apply(str)
+png_image_paths = (PATHS.data / pd.read_parquet(PATHS.metadata / "df_filepaths.parquet").rvl_image_path)\
+                    .apply(lambda x:str(x).replace(str(PATHS.rvl_cdip_images), str(PATHS.converted_images))[:-4] + '.jpg')
 img_preprocessor = joblib.load(PATHS.models / "img_ml_pipeline.joblib")
 
 def make_img_ml_model_wrapper(name, model_path):
@@ -247,46 +222,34 @@ def make_img_ml_model_wrapper(name, model_path):
         proba_prediction_function=predict_proba
     )
 
-# img_lgbm = make_img_ml_model_wrapper(
-#     "Image-based LGBM",
-#     PATHS.models / "img_lgbm.joblib"
-# )
-# img_xgb = make_img_ml_model_wrapper(
-#     "Image-based XGBoost",
-#     PATHS.models / "img_xgboost.joblib"
-# )
-# img_sgd = make_img_ml_model_wrapper(
-#     "Image-based SGD",
-#     PATHS.models / "img_sgd.joblib"
-# )
 
 def make_img_dl_model_wrapper(name, model_path):
     model = tf.keras.models.load_model(model_path)
-    def preprocess_image(image_path):
-        if image_path.endswith('.tif') or image_path.endswith('.tiff'):
-            image = Image.open(image_path)
-            image = image.resize((224, 224)).convert('RGB')  # resize + 3 canaux
-            arr = np.array(image).astype(np.float32) / 255.0  # normalisation
-            image = tf.convert_to_tensor(arr)  # conversion en tensor
-        else:
-            image = tf.io.read_file(image_path)
-            image = tf.image.decode_jpeg(image, channels=3)
-            image = tf.image.convert_image_dtype(image, tf.float32)  # normalisation automatique
-            image = tf.image.resize(image, [224, 224])
 
+    def preprocess_image(image_paths):
         if 'resnet50' in str(model._layers):
-            image *= 255.0 # pour RESNET
+            image = tf.io.read_file(image_paths)
+            image = tf.image.decode_jpeg(image, channels=3)
+            image = tf.image.resize(image, [224, 224])
+            image = preprocess_input(image)
+            return image
         elif 'vgg16' in str(model._layers):
-            pass
+            image = tf.io.read_file(image_paths)
+            image = tf.image.decode_jpeg(image, channels=3) #parce que VGG16 attend 3 canaux
+            image = tf.image.resize(image, [224, 224])  # taille attendue par VGG16
+            image = image / 255.0  # Normalisation entre 0 et 1
+            return image
         else:
             raise NotImplementedError("Unexpected model kind")
         return image
 
     def preprocess(document_list):
-        paths = image_paths[document_list]    
-        images = [preprocess_image(fp) for fp in paths]
-        preprocessed_images = tf.stack(images) # Tenseur (N, 224, 224, 3)
-        return preprocessed_images
+        paths = png_image_paths[document_list]
+        file_paths = png_image_paths[document_list].values
+        dataset = tf.data.Dataset.from_tensor_slices(file_paths)
+        dataset = dataset.map(preprocess_image, num_parallel_calls=tf.data.AUTOTUNE)
+        dataset = dataset.batch(32).prefetch(tf.data.AUTOTUNE)
+        return dataset
     
     def predict_proba(preprocessed_X):
         return model.predict(preprocessed_X, verbose=0)
@@ -299,22 +262,8 @@ def make_img_dl_model_wrapper(name, model_path):
         proba_prediction_function=predict_proba
     )
 
-# img_resnet_frozen = make_img_dl_model_wrapper(
-#     "RESNET50-Based Frozen",
-#     PATHS.models / "img_ResNet50_best_50_epocs_sample_40_000.keras"
-#     )
 
-# img_resnet_unfreezed = make_img_dl_model_wrapper(
-#     "RESNET50-Based Unfreezed",
-#     PATHS.models / "img_ResNet50_best_50_epocs_sample_40_000_unfreeze_step_by_step.keras"
-#     )
-
-# img_vgg16 = make_img_dl_model_wrapper(
-#     "VGG16-Based Frozen",
-#     PATHS.models / "img_VGG16_best_50_epocs_sample_40_000.keras"
-#     )
-
-# region MULTIMODAL MW FACTORY
+# region MULTIMODAL MAKERS
 class AGG_FN(Enum):
     AVERAGE = 1
     MAX = 2
@@ -382,31 +331,6 @@ def make_mmo_voter_wrapper(name, model_wrappers, agg_fn = AGG_FN.AVERAGE, weight
         proba_prediction_function=predict_proba
     )
 
-# mmo_voter_avg = make_mmo_voter(
-#     "MMO Voter - averaging 2",
-#     [txt_logistic_regressor, img_lgbm]
-#     )
-# mmo_voter_avgx4 = make_mmo_voter(
-#     "MMO Voter - averaging 4",
-#     [txt_logistic_regressor, img_lgbm, txt_mlp1, img_vgg16]
-#     )
-# mmo_voter_max = make_mmo_voter(
-#     "MMO Voter - max 2",
-#     [txt_logistic_regressor, img_lgbm],
-#     agg_fn=AGG_FN.MAX
-#     )
-# mmo_voter_weighted = make_mmo_voter(
-#     "MMO Voter - weighted 2",
-#     [txt_logistic_regressor, img_lgbm],
-#     agg_fn=AGG_FN.WEIGHTED,
-#     weights = [3,2]
-#     )
-# mmo_voter_class_weighted = make_mmo_voter(
-#     "MMO Voter - class_weighted 2",
-#     [txt_logistic_regressor, img_resnet_unfreezed],
-#     agg_fn=AGG_FN.CLASS_WEIGHTED,
-#     weights = [np.random.random(16), np.random.random(16)]
-#     )
 
 def make_mmo_composite_wrapper(name, model_file):
     model = MultiModalCompositeModel.load(model_file)
@@ -414,8 +338,6 @@ def make_mmo_composite_wrapper(name, model_file):
     def predict_proba(preprocessed_X):
         return model.predict_proba(preprocessed_X)
 
-    
-    
     return ModelWrapper(
         name=name,
         kind=MODEL_KIND.MULTIMODAL,
@@ -429,8 +351,6 @@ def make_mmo_clip_wrapper(name, model_file):
     
     def predict_proba(preprocessed_X):
         return model.predict_proba(preprocessed_X)
-
-    
     
     return ModelWrapper(
         name=name,
@@ -441,22 +361,24 @@ def make_mmo_clip_wrapper(name, model_file):
     )
 
 
+# region MW FACTORY
 class _ModelWrapperFactoryClass:
     _registry = [
         # maker_name,                    model_name,                                              model_filepath
         ['make_img_dl_model_wrapper',   'Image-based ResNet50 frozen',                          'img_ResNet50_best_50_epocs_sample_40_000.keras'],
         ['make_img_dl_model_wrapper',   'Image-based ResNet50 unfreezed',                       'img_ResNet50_best_50_epocs_sample_40_000_unfreeze_step_by_step.keras'],
-        ['make_img_dl_model_wrapper',   'Image-based VGG16',                                    'img_VGG16_best_50_epocs_sample_40_000.keras'],
-        ['make_img_dl_model_wrapper',   'Image-based VGG16 10k only',                           'img_best_VGG16_30_epochs_sample_10000.keras'],
+        ['make_img_dl_model_wrapper',   'Image-based VGG16 frozen-10k only',                    'img_best_VGG16_30_epochs_sample_10000.keras'],
+        ['make_img_dl_model_wrapper',   'Image-based VGG16 frozen-40k',                         'img_VGG16_best_50_epocs_sample_40_000.keras'],
+        ['make_img_dl_model_wrapper',   'Image-based VGG16 unfreezed',                          'img_VGG16_best_progressive_unfreeze_40_000.keras'],
         ['make_img_ml_model_wrapper',   'Image-based LGBM',                                     'img_lgbm.joblib'],
         ['make_img_ml_model_wrapper',   'Image-based SGD',                                      'img_sgd.joblib'],
         ['make_img_ml_model_wrapper',   'Image-based XGBoost',                                  'img_xgboost.joblib'],
         ['make_txt_ml_model_wrapper',   'Text-based Logistic Regressor',                        'txt_logistic_regressor.joblib'],
+        ['make_txt_ml_model_wrapper',   'Text-based Random Forest',                             'txt_random_forest.joblib'],
+        ['make_txt_ml_model_wrapper',   'Text-based Naive Bayes',                               'txt_naive_bayes.joblib'],
         ['make_txt_dl_model_wrapper',   'Text-based MLP1',                                      'txt_mlp1.keras'],
         ['make_txt_dl_model_wrapper',   'Text-based MLP2',                                      'txt_mlp2.joblib'],
         ['make_txt_dl_model_wrapper',   'Text-based MLP3',                                      'txt_mlp3.joblib'],
-        ['make_txt_ml_model_wrapper',   'Text-based Naive Bayes',                               'txt_naive_bayes.joblib'],
-        ['make_txt_ml_model_wrapper',   'Text-based Random Forest',                             'txt_random_forest.joblib'],
         ['make_mmo_composite_wrapper',  'MMO-Composite LogReg on img-LGBM+txt-LogReg',          'mmo_comp_logreg_on_img-lgbm+txt-logreg.joblib'],
         ['make_mmo_clip_wrapper',       'MMO-CLIP-Based Logistic Regressor',                    'mmo_clip_logistic_regressor.joblib'],
         ['make_mmo_clip_wrapper',       'MMO-CLIP-Based MLP1',                                  'mmo_clip+mlp1.keras'],
