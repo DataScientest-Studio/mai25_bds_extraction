@@ -37,7 +37,6 @@ def show():
     Prétraiter et analyser automatiquement un ensemble de documents OCR pour :
     - Nettoyer les métadonnées
     - Extraire du contenu textuel structurel
-    - Identifier les entités clés (noms, dates, organisations…)
     - Classifier automatiquement les types de documents
     - Poser les bases pour des analyses NLP avancées
     """)
@@ -51,7 +50,6 @@ def show():
     - Nettoyage des chaînes de caractères (`None`, espaces, casse)
     - Parsing des dates (`document_date`, `scan_date`)
     - Nettoyage des champs textuels (`title`, `ocr_text`, `author`)
-    - Standardisation des types de documents (`dt`)
     - Conversion des champs numériques (`pages_amount`, `np`, etc.)
     """)
     st.image(os.path.join(PATHS.streamlit, "assets", "images","dfocr.png"), caption="DF Avant après", use_container_width=True)
@@ -68,7 +66,7 @@ def show():
     st.header("🧠 Extraction automatique du contenu")
     st.markdown("""
     Les étapes d’analyse de texte comprennent :
-    - **Tokenisation** avec POS-tagging et lemmatisation
+    - **Tokenisation** avec POS-tagging
     - **Segmentation en phrases** : pour préparation au résumé ou à la structuration
     - **Stop words plus suppression caractères trop reccurents (pgnbr,html, etc.)**
     """)
