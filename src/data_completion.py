@@ -1,6 +1,26 @@
 from PIL import Image, UnidentifiedImageError
 import os
 import cv2
+from tqdm import tqdm
+
+def get_images_to_fix(paths):
+    """
+    Check a list of image file paths and return those that are missing, corrupted or unreadable.
+
+    Parameters:
+        paths (Iterable[str]): A list or iterable of image file paths.
+
+    Returns:
+        List[str]: A list of file paths corresponding to missing, corrupted or unreadable images.
+    """
+    result = []
+    for path in tqdm(paths):
+        try:
+            with Image.open(path) as img:
+                img.verify()
+        except Exception:
+            result.append(path)
+    return result
 
 def convert_iit_to_rvl_tiff(image_path: str, output_path: str) -> str:
     """
