@@ -35,7 +35,7 @@ class MODEL_KIND(Enum):
 class PerformanceSummary:
     accuracy: float
     precisions: list[float]
-    confusion_matrix: np.array
+    confusion_matrix: list[list[float]] # instead of np.array, for json saving
     inference_speed: float #(ms / document)
 
 class ModelWrapper:
@@ -88,7 +88,7 @@ class ModelWrapper:
             self._performance_summary = PerformanceSummary(
                 report['accuracy'],
                 precisions,
-                confusion_matrix(y_test, y_preds),
+                confusion_matrix(y_test, y_preds).tolist(),
                 inference_speed
                 )
         return self._performance_summary
@@ -157,7 +157,7 @@ def make_txt_dl_sklearn_model_wrapper(name, model_path):
 
     return ModelWrapper(
         name=name,
-        kind=MODEL_KIND.IMAGE,
+        kind=MODEL_KIND.TEXT,
         model=model,
         preprocessing_function=preprocess,
         proba_prediction_function=predict_proba
@@ -167,7 +167,7 @@ def make_txt_dl_keras_model_wrapper(name, model_path):
     model = tf.keras.models.load_model(model_path)
     def preprocess(document_list):
         ocr = df_ocr.loc[document_list, "ocr"]
-        vect = vectorizer.transform(ocr)
+        vect = vectorizer.transform(ocr).toarray()
         return vect
 
     def predict_proba(preprocessed_X):
