@@ -7,7 +7,6 @@ import base64
 import io
 from PIL import Image
 import matplotlib.pyplot as plt
-import seaborn as sns
 from assets import PATHS
 from assets import style
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -92,7 +91,7 @@ def show():
     ### Logistic Regression
     st.subheader("🔹 Régression Logistique")
 
-    st.image(os.path.join(PATHS.streamlit, "assets", "images","REG LOG.png"), caption="Resultats Regression logistique", use_column_width=True)
+    st.image(os.path.join(PATHS.streamlit, "assets", "images","REG LOG.png"), caption="Resultats Regression logistique", use_container_width=True)
 
     st.markdown("""
     - **Accuracy** : 82%
@@ -110,7 +109,7 @@ def show():
 
     ### Random Forest
     st.subheader("🔸 Random Forest")
-    st.image(os.path.join(PATHS.streamlit, "assets", "images","Random Forest.png"), caption="Resultats Random Forest", use_column_width=True)
+    st.image(os.path.join(PATHS.streamlit, "assets", "images","Random Forest.png"), caption="Resultats Random Forest", use_container_width=True)
 
     st.markdown("""
     - **Accuracy** : 82%
