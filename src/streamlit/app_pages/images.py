@@ -201,7 +201,7 @@ L'accuracy finale obtenue sur le set de validation de 4000 images: 0,79
     with st.expander("VGG16 -  Degel progressif automatique des couches"):
         st.markdown(f"""Cette fois, un nouveau callback a été ajouté, qui dégèle 5 nouvelles couches à fine-tuner quand la fonction de perte ,n'est pas meilleure que la meilleure précédemment enregistrée pendant 5 epochs (et on part d'un VGG16 avec 4 couches dégelées dès le départ)\n
 Pour limiter le temps d'execution, l'ensemble a été fait sur un échantillon de 40 000 images (1/10 de l'ensemble des images)
-L'accuracy finale obtenue sur le set de validation de 4000 images: 0.61
+L'accuracy finale obtenue sur le set de validation de 4000 images: 0.81
     """)
         st.image(os.path.join(PATHS.streamlit, "assets", "images","VGG16_2_history.png"), caption="Evaluation de la fonction de perte et de l'accuracy au fil des epoch")
         st.markdown(f"""50 epochs avaient été programmés mais l'apprentissage s'est arrêté à """)
@@ -223,7 +223,7 @@ L'accuracy finale obtenue sur le set de validation de 4000 images: 0.61
     })
 
     # Création du tableau HTML
-    table_html = data3.to_html(escape=False, index=False)
+    table_html = data3.to_html(escape=False, index=False) #pour que les passages à la ligne fonctionnent
 
     # Affichage dans Streamlit
     st.markdown(table_html, unsafe_allow_html=True)
