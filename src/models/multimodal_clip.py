@@ -39,9 +39,21 @@ class CLIP:
 
     def __init__(self, model_name="openai/clip-vit-base-patch32", device=None):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.processor = CLIPProcessor.from_pretrained(model_name)
-        self.model = CLIPModel.from_pretrained(model_name).to(self.device)
-        self.model.eval()
+        model_path = PATHS.models / model_name
+        try:
+            self.processor = CLIPProcessor.from_pretrained(model_path)
+            self.model = CLIPModel.from_pretrained(model_name).to(self.device)
+            self.model.eval()
+        except OSError as e:
+            #print(e)
+            print("CLIP not found locally - downloading")
+            self.processor = CLIPProcessor.from_pretrained(model_name)
+            self.model = CLIPModel.from_pretrained(model_name)
+            # Sauvegarde pour la prochaine fois
+            model_path.mkdir(parents=True, exist_ok=True)
+            self.model.save_pretrained(model_path)
+            self.processor.save_pretrained(model_path)                
+            print(f"CLIP saved for next time ({str(model_path)})")
 
         # lazy loading pour les embeddings rvl precalcules
         columns = [f"img_{i:03d}" for i in range(1, 513)]+[f"txt_{i:03d}" for i in range(1, 513)]
@@ -49,8 +61,9 @@ class CLIP:
         self._embeddings_were_augmented = False
         self.clip_saved_embeddings_path = PATHS.processed_data / "df_clip_embeddings.parquet"
         image_paths = PATHS.data / pd.read_parquet(PATHS.metadata / "df_filepaths.parquet").rvl_image_path
-        self.image_paths = image_paths.apply(
-            lambda x: str(x).replace(str(PATHS.raw_images), str(PATHS.converted_images))[:-4] + '.jpg')
+        self.image_paths = image_paths
+        # self.image_paths = image_paths.apply(
+        #     lambda x: str(x).replace(str(PATHS.raw_images), str(PATHS.converted_images))[:-4] + '.jpg')
         self.ocrs = pd.read_parquet(PATHS.processed_data / "df_txt_ocr1.parquet").ocr
 
     def get_embeddings(self, document_ids):
