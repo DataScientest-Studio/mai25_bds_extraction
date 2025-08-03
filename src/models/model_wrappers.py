@@ -1,4 +1,5 @@
 import time
+import json
 import joblib
 from enum import Enum
 from dataclasses import dataclass
@@ -77,20 +78,34 @@ class ModelWrapper:
     
     def _get_performance_summary(self):
         if self._performance_summary is None:
-            X_test = documents[data_sets.data_set == "test"].index
-            y_test = labels[data_sets.data_set == "test"].label
-            t0 = time.time()
-            y_preds = self.predict(X_test)
-            tf = time.time()
-            inference_speed = (tf - t0) / len(X_test)
-            report = classification_report(y_test, y_preds, output_dict=True)
-            precisions = [v['precision'] for v in [report[str(n)] for n in range(16)]]
-            self._performance_summary = PerformanceSummary(
-                report['accuracy'],
-                precisions,
-                confusion_matrix(y_test, y_preds).tolist(),
-                inference_speed
-                )
+            performance_summaries_filepath = PATHS.models / "performance_summaries.json"
+            if performance_summaries_filepath.exists():
+                with open(performance_summaries_filepath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            else:
+                data = dict()
+            if self.name in data:
+                self._performance_summary = PerformanceSummary(*data[self.name].values())
+            else:
+                # on calcule...
+                X_test = documents[data_sets.data_set == "test"].index
+                y_test = labels[data_sets.data_set == "test"].label
+                t0 = time.time()
+                y_preds = self.predict(X_test)
+                tf = time.time()
+                inference_speed = (tf - t0) / len(X_test)
+                report = classification_report(y_test, y_preds, output_dict=True)
+                precisions = [v['precision'] for v in [report[str(n)] for n in range(16)]]
+                self._performance_summary = PerformanceSummary(
+                    report['accuracy'],
+                    precisions,
+                    confusion_matrix(y_test, y_preds).tolist(),
+                    inference_speed
+                    )
+                # et on écrit
+                data[self.name] = self.performance_summary.__dict__
+                with open(performance_summaries_filepath, "w", encoding="utf-8") as f:
+                    json.dump(data, f)
         return self._performance_summary
     
     performance_summary = property(_get_performance_summary)
