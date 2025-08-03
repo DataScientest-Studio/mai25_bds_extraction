@@ -81,10 +81,6 @@ def show():
 
     st.image(os.path.join(PATHS.streamlit, "assets", "images","vecteur.png"), caption="Ocr handwritten", use_container_width=True)
 
-    st.subheader("📊 Résultats")
-    st.markdown("Les performances varient selon la source des données. Deux jeux sur trois ont été retenus pour l’expérimentation.")
-    st.markdown("Un pipeline complet a été conçu pour automatiser tout le processus :")
-    st.markdown("- Nettoyage → Vectorisation → Modèle → Prédiction")
 
     st.header("📈 Modèles Classiques : Comparaison")
 
