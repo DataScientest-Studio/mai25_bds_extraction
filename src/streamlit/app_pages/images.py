@@ -203,23 +203,23 @@ Le F1-score final obtenu sur le set de validation de 4000 images: 0,79
 Pour limiter le temps d'execution, l'ensemble a été fait sur un échantillon de 40 000 images (1/10 de l'ensemble des images)
 Le F1-score final obtenu sur le set de validation de 4000 images: 
     """)
-        #st.image(os.path.join(PATHS.streamlit, "assets", "images","VGG16_2_history.png"), caption="Evaluation de la fonction de perte et de l'accuracy au fil des epoch")
+        st.image(os.path.join(PATHS.streamlit, "assets", "images","VGG16_2_history.png"), caption="Evaluation de la fonction de perte et de l'accuracy au fil des epoch")
         st.markdown(f"""50 epochs avaient été programmés mais l'apprentissage s'est arrêté à """)
 
-        #col1, col2 = st.columns([0.4, 0.6])
-        #with col1:
-            #st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_2_spider.png"), caption="Représentation de l'accuracy - VGG16 - 4 couches")
+        col1, col2 = st.columns([0.4, 0.6])
+        with col1:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_2_spider.png"), caption="Représentation de l'accuracy - VGG16 - 4 couches")
 
-        #with col2:
-            #st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_2_cm.png"), caption="Matrice de confusion - VGG16 - 4 couches")
+        with col2:
+            st.image(os.path.join(PATHS.streamlit, "assets", "images","vgg16_2_cm.png"), caption="Matrice de confusion - VGG16 - 4 couches")
 
 
     st.subheader("Conclusion sur le DeepLearning")
     data3 = pd.DataFrame({
     'Model': ['ResNet50 - 10 couches', 'ResNet50 - Degel progressif manuel', 'VGG16 - 4 couches', 'VGG16 - Degel progressif automatique'],
-    "Epochs avant arrêt": ["18/50", "Etape 1: 9/10 <br>Etape 2: 6/10<br>Etape 3: 6/10", "25/50", "/50"],
-    "Durée d'entrainement": ["2h45", "Etape 1: 1h25 <br>Etape 2: 1h11<br>Etape 3: 1h20", "9h", "h"],
-    'F1 Score sur le set de validation': [0.74, 0.78, 0.79, 0.00]
+    "Epochs avant arrêt": ["18/50", "Etape 1: 9/10 <br>Etape 2: 6/10<br>Etape 3: 6/10", "25/50", "29/50"],
+    "Durée d'entrainement": ["2h45", "Etape 1: 1h25 <br>Etape 2: 1h11<br>Etape 3: 1h20", "9h", "18h"],
+    'F1 Score sur le set de validation': [0.74, 0.78, 0.79, 0.81]
     })
 
     # Création du tableau HTML
