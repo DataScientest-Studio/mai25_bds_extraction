@@ -21,6 +21,8 @@ PATHS = SimpleNamespace(
     processed_data =    project_root / "data" / "processed",
     models =            project_root / "models",
     pipelines =         project_root / "pipelines",
+    other_images =      project_root / "data" / "raw" / "RVL-CDIP" / "images" / "others",
+    images_to_import =  project_root / "data" / "to_import",
 )
 
 
