@@ -58,33 +58,28 @@ def show():
 - Données bruyantes ou mal OCRisées
 - Incohérences dans les métadonnées""")
     
-    st.text("""            
-        exemple avant nettoyage
-                
-        "IF\nBIONETICS\nLitton\n5516 Nicholson Lane\nKensington, MD 20795\n301-881-5600\nBilled 
-        To:\nLorillard Research Center\n420 English Street\nGreensboro, N.C. 27420\nATTN: Harry 
-        Minnemeyer\nINVOICE -\nTerms: Due on Submission / United States Dollars Only.\nPayment 
-        Address:\tLITTON BIONETICS, INC. - (103)\nBox 2087\nWashington, D.C. 20013\nDate Delivered:
-        \tAugust, 1984\n\t-------~~\n\nAuthorization:\tP.~ 02A\n\n(o.i)\nN 4951\nUSE THIS NUMBER\nFOR 
-        CHECK REMITTANCE\nAND CORRESPONDENCE\nDate: 14 September, 1984\nService Rendered:Ames Salmonella 
-        Plate Test on the compound B176.\ni\nFinal report was submitted in August, 1984. . . a `,:5\n51t5mitw
-        \nName:\nTitle:\nCorinne P.eichelt\nSupervisor, Cost Accounting\nP-v*11\nBilling No 38\nCustomer Code:
-        \nAccount Code:\n110\nWhite &amp;'Goidenrod, Customer; Green, Contract; Canary, Project; Pink, 
-        Chronotogicai\nr\npgNbr=1""")
-
-    st.text("""
-        apres preprocessing:
-
-        biometric litton nicholson lane kensington md billed lorillard research center english street greensboro
-        attn harry minnemeyer invoice terms due submission united states dollars payment address litton biometric
-        inc box washington date delivered august authorization use number check remittance correspondence date 
-        september service rendered ames salmonella plate test compound final report submitted august mit name title 
-        corinne eichelt supervisor cost accounting billing customer code account code white goidenrod customer green 
-        contract canary project pink chronological
-    """)
-    #st.image(os.path.join(PATHS.streamlit, "assets", "images","pb_rencontre.png"), caption="Ocr handwritten", use_container_width=True)
-    #st.image(os.path.join(PATHS.streamlit, "assets", "images","valeurs manquantes.png"), caption="Valeurs manquantes", use_container_width=True)
-    
+    avant, apres = st.columns([1,1])
+    with avant:
+        st.markdown("### Avant nettoyage", unsafe_allow_html=True)
+        st.text(repr("""IF\nBIONETICS\nLitton\n5516 Nicholson Lane\nKensington, MD 20795\n301-881-5600\nBilled 
+To:\nLorillard Research Center\n420 English Street\nGreensboro, N.C. 27420\nATTN: Harry 
+Minnemeyer\nINVOICE -\nTerms: Due on Submission / United States Dollars Only.\nPayment 
+Address:\tLITTON BIONETICS, INC. - (103)\nBox 2087\nWashington, D.C. 20013\nDate Delivered:
+\tAugust, 1984\n\t-------~~\n\nAuthorization:\tP.~ 02A\n\n(o.i)\nN 4951\nUSE THIS NUMBER\nFOR 
+CHECK REMITTANCE\nAND CORRESPONDENCE\nDate: 14 September, 1984\nService Rendered:Ames Salmonella 
+Plate Test on the compound B176.\ni\nFinal report was submitted in August, 1984. . . a `,:5\n51t5mitw
+\nName:\nTitle:\nCorinne P.eichelt\nSupervisor, Cost Accounting\nP-v*11\nBilling No 38\nCustomer Code:
+\nAccount Code:\n110\nWhite &amp;'Goidenrod, Customer; Green, Contract; Canary, Project; Pink, 
+Chronotogicai\nr\npgNbr=1"""))
+    with apres:
+        st.markdown("### Apres nettoyage", unsafe_allow_html=True)
+        st.text(repr("""biometric litton nicholson lane kensington md billed lorillard research center english street greensboro
+attn harry minnemeyer invoice terms due submission united states dollars payment address litton biometric
+inc box washington date delivered august authorization use number check remittance correspondence date 
+september service rendered ames salmonella plate test compound final report submitted august mit name title 
+corinne eichelt supervisor cost accounting billing customer code account code white goidenrod customer green 
+contract canary project pink chronological"""))
+        
 
     st.header("🧪 Modélisation : Classification des types de documents")
     st.subheader("Pipeline ML (modèles classiques)")
