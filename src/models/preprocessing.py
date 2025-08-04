@@ -530,7 +530,7 @@ def extract_features(image_path) -> None:
     documents = pd.read_parquet(PATHS.metadata / "df_documents.parquet")
 
     w, h = img.size
-    scale = max(w, h) / max_dim if max(w, h) > 1000 else 1
+    scale = max(w, h) / 1000 if max(w, h) > 1000 else 1
     new_size = (int(w / scale), int(h / scale))
     img = img.resize(new_size)
 
