@@ -42,12 +42,12 @@ def show():
     with col2:
         subcol1, subcol2 = st.columns([1, 1])
         with subcol1:
-            image_id = get_random_image_ids(labels=label_left, random_state = 123)[0]
+            image_id = get_random_image_ids(labels=label_left, random_state = 4)[0]
             image_path = get_rvl_image_path(image_id)
             st.image(image_path, use_container_width=True)
             st.caption(LABELS[label_left])
         with subcol2:
-            image_id = get_random_image_ids(labels=label_right, random_state = 123)[0]
+            image_id = get_random_image_ids(labels=label_right, random_state = 15)[0]
             image_path = get_rvl_image_path(image_id)
             st.image(image_path, use_container_width=True)
             st.caption(LABELS[label_right])
