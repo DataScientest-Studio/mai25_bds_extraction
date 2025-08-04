@@ -58,7 +58,7 @@ def show():
 - Données bruyantes ou mal OCRisées
 - Incohérences dans les métadonnées""")
     
-    st.markdown("""            
+    st.text("""            
         exemple avant nettoyage
                 
         "IF\nBIONETICS\nLitton\n5516 Nicholson Lane\nKensington, MD 20795\n301-881-5600\nBilled 
@@ -72,7 +72,7 @@ def show():
         \nAccount Code:\n110\nWhite &amp;'Goidenrod, Customer; Green, Contract; Canary, Project; Pink, 
         Chronotogicai\nr\npgNbr=1""")
 
-    st.markdown("""
+    st.text("""
         apres preprocessing:
 
         biometric litton nicholson lane kensington md billed lorillard research center english street greensboro
