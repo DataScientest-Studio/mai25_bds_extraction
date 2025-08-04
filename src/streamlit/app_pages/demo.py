@@ -2,12 +2,14 @@ import streamlit as st
 
 from assets import style
 from assets import PATHS
+from src import PATHS, LABELS
+import pandas as pd
+from PIL import Image
 
 sections = [
-    "Un bout de lecture",
-    "Un bout d'art",
-    "Quelques données",
-    "Et un beau graphique"
+    "Sélection des modèles",
+    "Sélection d'une image",
+    "Prédiction"
     ]
 
 section_counter = 0
@@ -19,128 +21,244 @@ def next_section():
     st.header(sections[section_counter])
     section_counter += 1
 
+from src.models.model_wrappers import ModelWrapperFactory, AGG_FN, png_image_paths
+
+
+
+# Genre de "State" de la page... (conservé entre les rendus)
+non_voter_wrappers = []
+voter_wrappers = []
+selected_images = []
+predictions = {}
+current_image_preview = None
+
 
 def show():
-    st.title("Page de présentation")
-    st.subheader("Bienvenue 👋")
-    st.write("Ceci est une page d'accueil avec du contenu lorem ipsum.")
+    global current_image_preview
+
+    def display_sidebar_footer(non_voter_wrappers, voter_wrappers, selected_images):
+        """
+        Affiche un récapitulatif fixé en bas de la sidebar :
+        - Nombre total de modèles non-voteurs
+        - Nombre de voteurs
+        - Nombre d'images sélectionnées
+        """
+        # CSS pour fixer la boîte en bas de la sidebar
+        st.markdown("""
+            <style>
+            .sidebar-footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                padding: 1rem;
+                border-top: 1px solid #ddd;
+                font-size: 0.875rem;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        footer_placeholder = st.sidebar.empty()
+        # Boîte HTML personnalisée
+        footer_placeholder.markdown(f"""
+            <div class="sidebar-footer">
+                <strong>🧠 État de la sélection</strong><br>
+                Modèles non-voteurs : <strong>{len(non_voter_wrappers)}</strong><br>
+                Voteurs : <strong>{len(voter_wrappers)}</strong><br>
+                Images sélectionnées : <strong>{len(selected_images)}</strong>
+            </div>
+        """, unsafe_allow_html=True)
 
     next_section()
-    st.markdown(f"""Lorsque j’avais six ans j’ai vu, une fois, une magnifique
-image, dans un livre sur la Forêt Vierge qui s’appelait « His
-toires Vécues ». Ça représentait un serpent boa qui avalait un
-fauve. Voilà la copie du dessin.
-On disait dans le livre : « Les serpents boas avalent leur
-proie tout entière, sans la mâcher. Ensuite ils ne peuvent plus
-bouger et ils dorment pendant les six mois de leur digestion. »
-J’ai alors beaucoup réfléchi sur les aventures de la jungle
-et, à mon tour, j’ai réussi, avec un crayon de couleur, à tracer
-mon premier dessin. Mon dessin numéro 1. Il était comme ça :
-J’ai montré mon chef-d’œuvre aux grandes personnes et je
-leur ai demandé si mon dessin leur faisait peur.
-Elles m’ont répondu : « Pourquoi un chapeau ferait-il
-peur ? »
-{style.highlight('Mon dessin ne représentait pas un chapeau.')} Il représentait
-un serpent boa qui digérait un éléphant. J’ai alors dessiné
-l’intérieur du serpent boa, afin que les grandes personnes puis
-sent comprendre. Elles ont toujours besoin d’explications. Mon
-dessin numéro 2 était comme ça :
-Les grandes personnes m’ont conseillé de laisser de côté les
-dessins de serpents boas ouverts ou fermés, et de m’intéresser
-plutôt à la géographie, à l’histoire, au calcul et à la grammaire.
-C’est ainsi que j’ai abandonné, à l’âge de six ans, une magnifique
-carrière de peintre. J’avais été découragé par l’insuccès de mon
-dessin numéro 1 et de mon dessin numéro 2. Les grandes per-
-sonnes ne comprennent jamais rien toutes seules, et c’est fati
-gant, pour les enfants, de toujours et toujours leur donner des
-explications.
-J’ai donc dû choisir un autre métier et j’ai appris à piloter
-des avions. J’ai volé un peu partout dans le monde. Et la géo-
-graphie, c’est exact, m’a beaucoup servi. Je savais reconnaître,
-du premier coup d’œil, la Chine de l’Arizona. C’est très utile, si
-l’on est égaré pendant la nuit.
-J’ai ainsi eu, au cours de ma vie, des tas de contacts avec
-des tas de gens sérieux. J’ai beaucoup vécu chez les grandes per
-sonnes. Je les ai vues de très près. Ça n’a pas trop amélioré mon
-opinion.
-Quand j’en rencontrais une qui me paraissait un peu lu-
-cide, je faisais l’expérience sur elle de mon dessin numéro 1 que
-j’ai toujours conservé. Je voulais savoir si elle était vraiment
-compréhensive. Mais toujours elle me répondait : « C’est un
-chapeau. » Alors je ne lui parlais ni de serpents boas, ni de fo-
-rêts vierges, ni d’étoiles. Je me mettais à sa portée. Je lui parlais
-de bridge, de golf, de politique et de cravates. Et la grande per-
-sonne était bien contente de connaître un homme aussi raison-
-nable.""", unsafe_allow_html=True)
+
+    model_names = ModelWrapperFactory.get_registered()
+
+    c1, c2 = st.columns([1,3])
+    with c1:
+        st.markdown("<h5>📦 Modèles disponibles<h5>", unsafe_allow_html=True)
+    with c2:
+        c21, c22 = st.columns([4, 1])
+        with c21:
+            selected_models = st.multiselect("Sélectionnez un ou plusieurs modèles", model_names)
+        with c22:
+            if st.button("Appliquer"):
+                non_voter_wrappers.clear()
+                for name in selected_models:
+                    non_voter_wrappers.append(ModelWrapperFactory.load_existing(name))
+                    st.markdown(
+                        "<div style='background-color:#d4edda; color:#155724; padding:6px 10px; "
+                        "border-radius:5px; font-size:0.4rem; border:1px solid #c3e6cb;'>"
+                        f"✅ {name}"
+                        "</div>",
+                        unsafe_allow_html=True
+                    )
+
+
+
+    # selected_wrappers = [all_wrappers[name] for name in selected_models]
+
+    # === 2. Définir un voteur ===
+
+    c1, c2 = st.columns([1,3])
+    with c1:
+        st.markdown("<h5>🧮 Définir un voteur personnalisé<h5>", unsafe_allow_html=True)
+    with c2:
+        with st.expander("Créer un voteur"):
+
+            c21, c22 = st.columns([1, 1])
+            with c21:
+                voter_name = st.text_input("Nom du voteur", value="MonVoteur")
+                agg_fn_label = st.selectbox("Fonction d'agrégation", [fn.name for fn in AGG_FN])
+                agg_fn = AGG_FN[agg_fn_label]
+            with c22:
+                voter_models = st.multiselect("Choisissez les modèles à inclure", model_names, key="voter_models")
+
+            weights = None
+            if agg_fn in [AGG_FN.WEIGHTED, AGG_FN.CLASS_WEIGHTED] and voter_models:
+                st.markdown("### ⚖️ Définir les poids")
+                weights = []
+                for name in voter_models:
+                    w = st.slider(f"Poids pour {name}", min_value=0.0, max_value=1.0, value=1.0)
+                    weights.append(w)
+
+            if st.button("➕ Ajouter ce voteur"):
+                new_voter = ModelWrapperFactory.make_mmo_voter_wrapper(voter_name, voter_wrappers, agg_fn=agg_fn, weights=weights)
+                voter_wrappers.append(new_voter)
+                # st.session_state.setdefault("custom_voters", {})[voter_name] = new_voter
+
+    # === 3. Affichage des performances ===
+    st.subheader("📊 Performances des modèles")
+
+    # Fusion des modèles classiques et voteurs créés
+    # all_models_to_show = selected_wrappers + list(st.session_state.get("custom_voters", {}).values())
+
+    # if all_models_to_show:
+    #     for mw in all_models_to_show:
+    #         st.markdown(f"### ✅ {mw.name}")
+    #         # Tu peux mettre ici des métriques / confusion matrix / courbes
+    #         st.write("À venir : affichage des graphes")
+    # else:
+    #     st.info("Aucun modèle sélectionné ou créé.")
+
+
+    #region Sélection image
     next_section()
-    st.image(PATHS.streamlit_images / "joconde.jpg", caption="La Joconde")
-    st.text("""La Joconde est le portrait le plus célèbre au monde. L'identité du modèle est régulièrement remise en question, mais on admet généralement qu'il s'agit d'une dame florentine, prénommée Lisa, épouse de Francesco del Giocondo. Le nom Giocondo a été très tôt francisé en Joconde, mais le tableau est aussi connu sous le titre de Portrait de Monna Lisa, monna signifiant dame ou madame en italien ancien.
 
-UNE LONGUE HISTOIRE AVEC LA FRANCE
-C'est probablement entre 1503 et 1506 que Francesco del Giocondo commande le portrait de sa jeune épouse à Léonard qui réside alors à Florence. Mais il ne l'a certainement jamais eu en sa possession. En effet, Léonard, invité à la cour de François Ier en 1517, l'emporte sans doute avec lui en France où il meurt deux ans plus tard au Clos Lucé, à Amboise. Le tableau est vraisemblablement acheté par François Ier lui-même, qui admire « le sourire quasi divin » de la dame. Il devient rapidement par la suite une œuvre emblématique des collections françaises.
+    # chargement des images
+    documents = pd.read_parquet(PATHS.metadata / "df_documents.parquet").index
+    documents_rvl = pd.read_parquet(PATHS.metadata / "df_documents_save.parquet").index
+    imported_ids = [i for i in documents if i not in documents_rvl]
+    df_images = pd.read_parquet(PATHS.metadata / "df_filepaths.parquet")[["filename", "rvl_image_path"]].loc[imported_ids]\
+        .apply({"filename": lambda x:x, "rvl_image_path": lambda x: str(PATHS.data/x)})\
+        .rename(columns={"rvl_image_path":"path", "filename": "name"})\
+        .sort_values("name")
 
-UNE COMPOSITION CLAIRE
-Le tableau représente la jeune femme de trois quarts, assise dans une loggia ouverte sur un paysage. Elle regarde le spectateur et sourit. L'avant-bras gauche appuyé sur l'accoudoir d'un fauteuil, les mains posées l'une sur l'autre, elle domine l'ensemble de la composition. Sa silhouette s'inscrit dans une forme pyramidale qui affermit la stabilité de la figure. Les cheveux sombres, recouverts d'un léger voile, encadrent le visage aux sourcils épilés qui attire toute l'attention du spectateur.
 
-UNE PRÉSENCE « QUI CRÈVE L'ÉCRAN »
-Avec son regard pénétrant et son léger sourire, Monna Lisa semble défier le spectateur et s'en amuser. Léonard a su capter une expression fugace passée sur le visage de la jeune femme. Il représente avec précision les muscles de son visage et tous leurs mouvements, notamment aux contours des yeux et aux commissures des lèvres. Son habileté réside surtout dans la manière dont il travaille le volume des carnations, en estompant de manière très subtile les passages de l'ombre à la lumière.
-Il invente ainsi un nouvel effet, le sfumato, qui lui permet de mieux inscrire la figure dans l'espace. C'est principalement grâce à cet effet, caractéristique de la peinture de Léonard, que la Joconde apparaît si présente au spectateur. Elle est là toute proche et nous observe comme derrière une fenêtre. Cette présence est encore accentuée par le contraste fort qui existe à l'intérieur du tableau entre la figure et le paysage vaporeux sur lequel sa silhouette se détache.
+    col1, col2 = st.columns([2, 2])
+    checkboxes = {}
+    with col1:
+        st.markdown("##### Images disponibles")
 
-UN PAYSAGE ÉNIGMATIQUE
-Le vaste paysage montre de lointaines vallées et des pitons rocheux perdus dans la brume. Sa profondeur est obtenue grâce à une perspective atmosphérique qui consiste à créer différents plans en modulant progressivement les tonalités. On passe ainsi d'un brun verdâtre à un vert bleuté pour finalement rejoindre le ciel. Au plan le plus rapproché, des signes de civilisation apparaissent : sur la droite, un pont enjambe une rivière , sur la gauche, un sentier serpente. Mais au fur et à mesure que l'on se rapproche de la ligne d'horizon, des montagnes grandioses apparaissent, puis se fondent dans une lumière vaporeuse et vibrante.
+        for img_id, row in df_images.iterrows():
+            # Checkbox de sélection
+#            checked = img_id in st.session_state.selected_image_ids
+            name_col, preview_col, select_col = st.columns([5, 3, 2])
+            with name_col:
+                st.write(row["name"])
+            with preview_col:
+                if st.button("preview", key=f"btn_{img_id}"):
+                    current_image_preview = img_id
+            with select_col:
+                checkboxes[img_id] = st.checkbox("", key=f"chk_{img_id}", value=img_id in selected_images)
+    with col2:
+        title_col, button_col = st.columns([3, 2])
+        with title_col:
+            st.markdown("### 🔍 Aperçu")
+        with button_col:
+            if st.button("Appliquer", key="img_sel_apply"):
+                selected_images.clear()
+                for img_id, selected in checkboxes.items():
+                    if selected:
+                        selected_images.append(img_id)
+        if current_image_preview:
+            path = df_images.loc[current_image_preview]["path"]
+            try:
+                img = Image.open(path)
+                st.image(img, caption=f"Aperçu de {df_images.loc[current_image_preview,"name"]}", use_container_width=True)
+            except Exception as e:
+                st.error(f"Erreur de lecture de l’image : {e}")
+        else:
+            st.info("Cliquez sur un nom d’image à gauche pour afficher un aperçu.")
 
-UNE ÉTERNELLE FASCINATION
-Monna Lisa nous observe et nous sourit, mais son regard s'efface derrière l'icône qu'elle est devenue. Elle fascine. Chacun y projette ses propres fantasmes. Les artistes, de toutes les périodes, n'ont cessé de s'en inspirer, de Raphaël à Corot, de Marcel Duchamp à Jean-Michel Basquiat. Qu'elle soit référence absolue ou objet de raillerie, elle reste à jamais un phare dans l'histoire de l'art."""
-)
-    # display image
+
+
+
+
+    #region Prédiction
     next_section()
+    if st.button("Predict", key="compute_predictions"):
+        predictions.clear()
+        for model in non_voter_wrappers + voter_wrappers:
+            preds = model.predict(selected_images)
+            # probas = model.predict_probas(selected_images)
+            predictions[model.name] = {
+                img_id: {
+                    "prediction": pred,
+                    # "probas": probs
+                    }
+                    # for img_id, pred, probs in zip(selected_images, preds, probas)
+                    for img_id, pred in zip(selected_images, preds)
+            }
 
-    import pandas as pd
-    from sklearn.datasets import load_iris
-    iris = load_iris(as_frame=True)
-    df = iris.frame
-    st.subheader("🌸 Base de données Iris")
+    if predictions:
+        data = {}
 
-    st.text("Code utilisé pour télécharger:")
-    st.code("""iris = load_iris(as_frame=True)
-    df = iris.frame""")
+        for model_name, preds_dict in predictions.items():
+            data[model_name] = {
+                img_id: info["prediction"] for img_id, info in preds_dict.items()
+            }
 
-    # Aperçu du dataframe
-    st.markdown("#### Aperçu des données")
-    st.dataframe(df.head(10))
+        df_preds = pd.DataFrame(data).T
+        df_preds.index.name = "Image ID"
 
-    # disply dataframe
+        st.subheader("Synthèse")
+        st.dataframe(df_preds)
 
-    next_section()
-    # display graph
-    from matplotlib import pyplot as plt
-    plt.style.use('dark_background')
+            
+            # st.text(predictions)
+            
+        #     for model in non_voter_wrappers:
+        # row = {"model": model.name}
+        # for img_id in st.session_state.selected_image_ids:
+        #     pred_class = model.predict(img_id)
+        #     row[img_id] = pred_]()
 
-    df["target_name"] = df["target"].map(dict(enumerate(iris.target_names)))
+        for img_id in selected_images:
+            st.markdown(f"### 🖼️ Image : `{img_id}`")
+            
+            cols = st.columns([1, 2])  # [gauche, droite]
 
-    species = iris.target_names
-    color_map = {name: style.graph_colors[i] for i, name in enumerate(species)}
-    fig, ax = plt.subplots(figsize=(8, 6), facecolor="none")
+            # Colonne de gauche : preview de l'image
+            with cols[0]:
+                image_path = png_image_paths[img_id]
+                st.image(image_path, caption=img_id, use_container_width=True)
 
-    for name in species:
-        sub_df = df[df["target_name"] == name]
-        ax.scatter(
-            sub_df["petal length (cm)"],
-            sub_df["petal width (cm)"],
-            label=name,
-            color=color_map[name],
-            alpha=0.8,
-            edgecolors="k",
-            s=100
-        )
+            # Colonne de droite : prédictions des modèles
+            with cols[1]:
+                for model_name in predictions:
+                    pred_label_code = predictions[model_name][img_id]["prediction"]
+                    pred_label_plain = LABELS.get(pred_label_code, f"Label inconnu ({pred_label_code})")
+                    st.markdown(f"**{model_name}** → {pred_label_plain}")
 
-    # 🎯 Mise en forme
-    ax.set_title("Iris - Pétale : Longueur vs Largeur", fontsize=16, fontweight="bold")
-    ax.set_xlabel("Longueur du pétale (cm)", fontsize=12)
-    ax.set_ylabel("Largeur du pétale (cm)", fontsize=12)
-    ax.grid(True, linestyle="--", alpha=0.4)
-    ax.legend(title="Espèce")
 
-    # Affichage dans Streamlit
-    st.pyplot(fig)
 
+        
+
+
+
+
+
+
+
+
+
+    display_sidebar_footer(non_voter_wrappers, voter_wrappers, selected_images)
