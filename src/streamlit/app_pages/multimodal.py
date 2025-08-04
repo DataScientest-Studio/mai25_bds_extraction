@@ -1,12 +1,16 @@
 import os
+import json
 
 import streamlit as st
 import pickle
 import pandas as pd
+from matplotlib import pyplot as plt
 
 from assets import style
 from assets import PATHS, LABELS
-from assets.utils import get_rvl_image_path, get_random_image_ids
+from assets.utils import get_rvl_image_path, get_random_image_ids, dumb_draw_spider_graph_dark
+
+# from src.streamlit.utils import dumb_draw_spider_graph_dark
 
 sections = [
     "Pourquoi du multimodal?",
@@ -56,15 +60,29 @@ def show():
     st.text("- Il est difficile sans aller lire le document de définir s'il s'agit d'une lettre ou d'un rapport scientifique.")
 
     st.markdown(f"""<h3>Confrontation aux résultats obtenus</h3>""", unsafe_allow_html = True)
+    
+    with open(PATHS.models / "performance_summaries.json") as f:
+        performance_summaries = json.load(f)
+    text_models = {name: data for name, data in performance_summaries.items() if name.startswith("Text")}
+    best_text_model = max(text_models, key=lambda k: performance_summaries[k]["accuracy"])
+    image_models = {name: data for name, data in performance_summaries.items() if name.startswith("Image")}
+    best_image_model = max(image_models, key=lambda k: performance_summaries[k]["accuracy"])    
     col1, col2 = st.columns([1, 1])
+
     with col1:
-        image_path = PATHS.streamlit_images / "multimodal" / "tmp_1_spider.png"
-        st.image(image_path, use_container_width=True)
-        st.caption("spider graph du meilleur modèle texte[a mettre à jour]")
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(8, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        dumb_draw_spider_graph_dark([best_text_model],[performance_summaries[best_text_model]["precisions"]], axe=axe)
+        st.pyplot(fig)
+        st.caption(f"spider graph du meilleur modèle texte ({best_text_model})")
     with col2:
-        image_path = PATHS.streamlit_images / "ResNet_2_spider.png"
-        st.image(image_path, use_container_width=True)
-        st.caption("spider graph du meilleur modèle texte")
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(8, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        dumb_draw_spider_graph_dark([best_image_model],[performance_summaries[best_image_model]["precisions"]], axe=axe)
+        st.pyplot(fig)
+        st.caption(f"spider graph du meilleur modèle image ({best_image_model})")
     st.markdown(f"""
     <h3>architectures étudiées</h3>
 
@@ -92,28 +110,54 @@ def show():
     st.markdown(f"<h3>Réultats obtenus</h3>", unsafe_allow_html=True)
 
     st.markdown(f"<h6>simples: moyenne / maximum</h6>", unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
     with col1:
         st.latex(r"\hat{y}_{\text{vot}} = \frac{1}{2} \left( \hat{y}_{\text{img}} + \hat{y}_{\text{txt}} \right)")
         st.text("Résultat avec moyenne meilleurs qu'avec maximum")
         st.markdown(f"Score = {style.highlight('84.05%')}", unsafe_allow_html=True)
     with col2:
-        image_path = PATHS.streamlit_images / "multimodal" / "spider_avg.png"
-        st.image(image_path, use_container_width=True)
+
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(12, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        names = [
+            "MMO-Voter Average on img-LGBM+txt-LogRed",
+            "Image-based LGBM",
+            "Text-based Logistic Regressor"
+        ]
+        precision_lists = [
+            performance_summaries[name]["precisions"] for name in names
+        ]
+        dumb_draw_spider_graph_dark(names,precision_lists, axe=axe)
+        st.pyplot(fig)
+        st.caption(f"{names[0]}")
 
     st.markdown(f"<h6>moyenne pondérée</h6>", unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
     with col1:
         st.latex(r"\hat{y}_{\text{vot}} = (1 - \alpha) \cdot \hat{y}_{\text{img}} + \alpha \cdot \hat{y}_{\text{txt}}")
         image_path = PATHS.streamlit_images / "multimodal" / "weighted_voter.png"
         st.image(image_path, use_container_width=True)
         st.markdown(f"Score = {style.highlight('84.06%')}", unsafe_allow_html=True)
     with col2:
-        image_path = PATHS.streamlit_images / "multimodal" / "spider_weighted.png"
-        st.image(image_path, use_container_width=True)
+
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(12, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        names = [
+            "MMO-Voter 0.49-weighted on img-LGBM+txt-LogRed",
+            "Image-based LGBM",
+            "Text-based Logistic Regressor"
+        ]
+        precision_lists = [
+            performance_summaries[name]["precisions"] for name in names
+        ]
+        dumb_draw_spider_graph_dark(names,precision_lists, axe=axe)
+        st.pyplot(fig)
+        st.caption(f"{names[0]}")
 
     st.markdown(f"<h6>pondérations par classe</h6>", unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
     with col1:
         st.latex(r"\hat{y}_{\text{vot}} = (\mathbf{I}_{16} - \mathbf{A}) \times \hat{y}_{\text{img}} + \mathbf{A} \times \hat{y}_{\text{txt}}")
         st.latex(r"""\mathbf{A} =
@@ -127,8 +171,20 @@ def show():
         st.latex(r"\alpha_i = \frac{y_{\text{txt}, i}}{y_{\text{txt}, i} + y_{\text{img}, i}}")
         st.markdown(f"Score = {style.highlight('84.24%')}", unsafe_allow_html=True)
     with col2:
-        image_path = PATHS.streamlit_images / "multimodal" / "spider_class_weighted.png"
-        st.image(image_path, use_container_width=True)
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(12, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        names = [
+            "MMO-Voter class-weighted on img-LGBM+txt-LogRed",
+            "Image-based LGBM",
+            "Text-based Logistic Regressor"
+        ]
+        precision_lists = [
+            performance_summaries[name]["precisions"] for name in names
+        ]
+        dumb_draw_spider_graph_dark(names,precision_lists, axe=axe)
+        st.pyplot(fig)
+        st.caption(f"{names[0]}")
     
     # region Composite
     next_section()
@@ -139,12 +195,24 @@ def show():
     st.markdown(f"""modèle: 1 seul type exploré : LogisticRegression (mais architecture adaptée pour tout type de ML)
     """,unsafe_allow_html=True)
     st.markdown(f"""<h3>Résultats</h3>""",unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
     with col1:
         st.markdown(f"Score = {style.highlight('84.44%')}", unsafe_allow_html=True)
     with col2:
-        image_path = PATHS.streamlit_images / "multimodal" / "spider_logreg.png"
-        st.image(image_path, use_container_width=True)
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(12, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        names = [
+            "MMO-Composite LogReg on img-LGBM+txt-LogReg",
+            "Image-based LGBM",
+            "Text-based Logistic Regressor"
+        ]
+        precision_lists = [
+            performance_summaries[name]["precisions"] for name in names
+        ]
+        dumb_draw_spider_graph_dark(names,precision_lists, axe=axe)
+        st.pyplot(fig)
+        st.caption(f"{names[0]}")
     st.markdown(f"""Possibilité de multiplier les expériences:
 
 - modèles texte et image utilisés en entrée
@@ -160,12 +228,26 @@ def show():
     st.markdown(f"""modèle: 1 seul type exploré : LogisticRegression (mais architecture adaptée pour tout type de ML)
     """,unsafe_allow_html=True)
     st.markdown(f"""<h3>Résultats</h3>""",unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 2])
     with col1:
         image_path = PATHS.streamlit_images / "multimodal" / "tableau.png"
         st.image(image_path, use_container_width=True)
-        st.markdown(f"Score = {style.highlight('90.05%')}", unsafe_allow_html=True)
+        st.markdown(f"Meilleur score = {style.highlight('90.16%')}", unsafe_allow_html=True)
     with col2:
-        image_path = PATHS.streamlit_images / "multimodal" / "spider_clip_mlp.png"
-        st.image(image_path, use_container_width=True)
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(12, 8))
+        fig.patch.set_facecolor('black')
+        axe.set_facecolor('black')
+        names = [
+            "MMO-CLIP-Based MLP1",
+            "MMO-CLIP-Based MLP5",
+            "MMO-CLIP-Based MLP7",
+            "MMO-CLIP-Based MLP9",
+            "MMO-CLIP-Based MLP12",
+        ]
+        precision_lists = [
+            performance_summaries[name]["precisions"] for name in names
+        ]
+        dumb_draw_spider_graph_dark(names,precision_lists, axe=axe)
+        st.pyplot(fig)
+        st.caption(f"Exemples de {names[0][:-1]}")
 

@@ -17,7 +17,7 @@ pages = {
     "Texte": texte,
     "Images": images,
     "Multimodal": multimodal,
-    "Enseignements": enseignements,
+    "Conclusion": enseignements,
     "Démonstration": demo,
 }
 
@@ -27,7 +27,7 @@ pages = {
 for page in pages.values():
     page.section_counter = 0
 
-main_menu = st.sidebar.selectbox("Menu principal", list(pages.keys()))
+main_menu = st.sidebar.selectbox("Menu principal", list(pages.keys()), index=0)
 
 current_page = pages[main_menu]
 
