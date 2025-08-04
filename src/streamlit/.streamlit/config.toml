@@ -7,9 +7,9 @@ textColor = "#FAFAFA"
 
 
 font = "sans-serif"
-baseFontSize = 24
+baseFontSize = 20
 
 headingFont = "sans-serif"
-headingFontSizes = ["100", "70", "52", "44", "36", "30"]
+headingFontSizes = ["70", "54", "42", "35", "29", "24"]
 
 codeFont = "monospace"
