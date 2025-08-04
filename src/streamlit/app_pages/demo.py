@@ -5,6 +5,7 @@ from assets import PATHS
 from src import PATHS, LABELS
 import pandas as pd
 from PIL import Image
+from pathlib import Path
 
 sections = [
     "Sélection des modèles",
@@ -28,9 +29,17 @@ from src.models.model_wrappers import ModelWrapperFactory, AGG_FN, png_image_pat
 # Genre de "State" de la page... (conservé entre les rendus)
 non_voter_wrappers = []
 voter_wrappers = []
-selected_images = []
 predictions = {}
 current_image_preview = None
+# chargement des images
+documents = pd.read_parquet(PATHS.metadata / "df_documents.parquet").index
+documents_rvl = pd.read_parquet(PATHS.metadata / "df_documents_save.parquet").index
+imported_ids = [i for i in documents if i not in documents_rvl]
+df_images = pd.read_parquet(PATHS.metadata / "df_filepaths.parquet")[["filename", "rvl_image_path"]].loc[imported_ids]\
+    .apply({"filename": lambda x:x, "rvl_image_path": lambda x: str(PATHS.data/x)})\
+    .rename(columns={"rvl_image_path":"path", "filename": "name"})\
+    .sort_values("name")
+selected_images = df_images.index.tolist()
 
 
 def show():
@@ -110,23 +119,33 @@ def show():
                 agg_fn_label = st.selectbox("Fonction d'agrégation", [fn.name for fn in AGG_FN])
                 agg_fn = AGG_FN[agg_fn_label]
             with c22:
-                voter_models = st.multiselect("Choisissez les modèles à inclure", model_names, key="voter_models")
+                submodel_names = st.multiselect("Choisissez les modèles à inclure", model_names, key="submodel_names")
 
             weights = None
-            if agg_fn in [AGG_FN.WEIGHTED, AGG_FN.CLASS_WEIGHTED] and voter_models:
+            if agg_fn in [AGG_FN.WEIGHTED, AGG_FN.CLASS_WEIGHTED] and submodel_names:
                 st.markdown("### ⚖️ Définir les poids")
                 weights = []
-                for name in voter_models:
+                for name in submodel_names:
                     w = st.slider(f"Poids pour {name}", min_value=0.0, max_value=1.0, value=1.0)
                     weights.append(w)
 
             if st.button("➕ Ajouter ce voteur"):
-                new_voter = ModelWrapperFactory.make_mmo_voter_wrapper(voter_name, voter_wrappers, agg_fn=agg_fn, weights=weights)
+                new_voter = ModelWrapperFactory.make_mmo_voter_wrapper(
+                    voter_name,
+                    [ModelWrapperFactory.load_existing(submodel_name) for submodel_name in submodel_names],
+                    agg_fn=agg_fn,
+                    weights=weights
+                    )
                 voter_wrappers.append(new_voter)
+                submodel_names.clear()
+
+
+
+
                 # st.session_state.setdefault("custom_voters", {})[voter_name] = new_voter
 
     # === 3. Affichage des performances ===
-    st.subheader("📊 Performances des modèles")
+#    st.subheader("📊 Performances des modèles")
 
     # Fusion des modèles classiques et voteurs créés
     # all_models_to_show = selected_wrappers + list(st.session_state.get("custom_voters", {}).values())
@@ -143,14 +162,6 @@ def show():
     #region Sélection image
     next_section()
 
-    # chargement des images
-    documents = pd.read_parquet(PATHS.metadata / "df_documents.parquet").index
-    documents_rvl = pd.read_parquet(PATHS.metadata / "df_documents_save.parquet").index
-    imported_ids = [i for i in documents if i not in documents_rvl]
-    df_images = pd.read_parquet(PATHS.metadata / "df_filepaths.parquet")[["filename", "rvl_image_path"]].loc[imported_ids]\
-        .apply({"filename": lambda x:x, "rvl_image_path": lambda x: str(PATHS.data/x)})\
-        .rename(columns={"rvl_image_path":"path", "filename": "name"})\
-        .sort_values("name")
 
 
     col1, col2 = st.columns([2, 2])
@@ -233,21 +244,22 @@ def show():
         #     row[img_id] = pred_]()
 
         for img_id in selected_images:
-            st.markdown(f"### 🖼️ Image : `{img_id}`")
+            img_name = str(Path(png_image_paths[img_id]).name)
+            # st.markdown(f"### 🖼️ Image : `{img_name}`")
             
             cols = st.columns([1, 2])  # [gauche, droite]
 
             # Colonne de gauche : preview de l'image
             with cols[0]:
                 image_path = png_image_paths[img_id]
-                st.image(image_path, caption=img_id, use_container_width=True)
+                st.image(image_path, caption=img_name, use_container_width=True)
 
             # Colonne de droite : prédictions des modèles
             with cols[1]:
                 for model_name in predictions:
                     pred_label_code = predictions[model_name][img_id]["prediction"]
                     pred_label_plain = LABELS.get(pred_label_code, f"Label inconnu ({pred_label_code})")
-                    st.markdown(f"**{model_name}** → {pred_label_plain}")
+                    st.markdown(f"**{model_name}**          -> {pred_label_plain}", unsafe_allow_html=True)
 
 
 
