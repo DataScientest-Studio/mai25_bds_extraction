@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import precision_score
 
 from assets import PATHS, LABELS
+from src.streamlit.assets.style import graph_colors
 
 def get_rvl_image_path(document_id):
     """Return given image_path"""
@@ -154,3 +155,96 @@ def conf_matrix_dark(cm, save_path):
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, transparent=True)
     plt.close()
+
+def dumb_draw_spider_graph_dark(model_names, precision_lists, title="Précision par classe", axe=None):
+    n_classes = 16
+    label_dict = {
+        0: 'letter',
+        1: 'form',
+        2: 'email',
+        3: 'handwritten',
+        4: 'advertisement',
+        5: 'scientific report',
+        6: 'scientific publication',
+        7: 'specification',
+        8: 'file folder',
+        9: 'news article',
+        10: 'budget',
+        11: 'invoice',
+        12: 'presentation',
+        13: 'questionnaire',
+        14: 'resume',
+        15: 'memo'
+        }
+    labels = list(range(n_classes))
+    if label_dict:
+        label_names = [label_dict[i] for i in labels]
+    else:
+        label_names = [str(i) for i in labels]
+
+    angles = np.linspace(0, 2 * np.pi, n_classes, endpoint=False).tolist()
+    angles += angles[:1]
+
+    # Création figure + axe polar
+    if axe is None:
+        fig, axe = plt.subplots(subplot_kw=dict(polar=True), figsize=(8, 8))
+
+
+    # Couleurs
+#    line_color = '#4FC3F7'
+#    fill_color = '#4FC3F7'
+    text_color = 'white'
+    grid_color = '#888888'
+
+    for model_name, precision_list, color in zip(model_names, precision_lists, graph_colors):
+        values = precision_list + [precision_list[0]]
+        label = model_name.replace(" ", "\n", 1)
+        axe.plot(angles, values, 'o-', linewidth=2, color=color, label = label)
+        axe.fill(angles, values, alpha=0.25, color=color)
+
+    axe.set_theta_offset(np.pi / 2)
+    axe.set_theta_direction(-1)
+    axe.set_ylim(0, 1)
+
+    axe.set_xticks(angles[:-1])
+    axe.set_xticklabels([])
+    axe.set_thetagrids([])
+    axe.set_rlabel_position(12)
+
+    axe.tick_params(colors=text_color)
+    axe.spines['polar'].set_color(grid_color)
+    axe.grid(color=grid_color)
+
+    for i in range(n_classes):
+        angle_rad = angles[i]
+        axe.text(
+            angle_rad,
+            1.15,
+            label_names[i],
+            horizontalalignment='center',
+            verticalalignment='center',
+            fontsize=12,
+            color=text_color
+        )
+        angle_rad = angles[i]
+    
+        # Ligne depuis le centre jusqu'au bord
+        axe.plot([angle_rad, angle_rad], [0, 1], color=grid_color, linewidth=0.5, linestyle='dashed')
+
+    axe.set_yticks([0.25, 0.5, 0.75, 1.0])
+    axe.set_yticklabels(['0.25', '0.5', '0.75', '1.0'], color=text_color, fontsize=8)
+    axe.set_title(title, size=14, y=1.1, color=text_color)
+    if len(model_names) > 1:
+        legend = axe.legend(
+            facecolor='black',
+            edgecolor='white',
+            framealpha=0.8,
+            loc='lower left',
+            bbox_to_anchor=(1.05, -0.1))
+
+        for text in legend.get_texts():
+            text.set_color("#FAFAFA")
+#    plt.tight_layout()
+
+    plt.show()
+#    plt.close()
