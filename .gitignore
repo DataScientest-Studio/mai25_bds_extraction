@@ -172,3 +172,8 @@ data*/
 # temporary model and pipeline ignore
 /models/
 /pipelines/
+
+
+# graphe généré par pyvis
+/src/streamlit/graph.html
+/graph.html
