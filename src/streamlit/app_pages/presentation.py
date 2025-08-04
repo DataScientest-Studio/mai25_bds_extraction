@@ -40,7 +40,7 @@ def show():
     net.add_node("C", fixed={'x': False, 'y': True}, y=200, label="Images initiales", title="Images originales scannées", color="#5098F8")
     net.add_node("C2", fixed={'x': False, 'y': True}, y=200, label="Metadata", title="Métadonnées associées aux images", color="#5098F8")
     net.add_node("D", fixed={'x': False, 'y': True}, y=200, label="Texte océrisé", title="Texte obtenu via OCR", color="#5098F8")
-    net.add_node("E", fixed={'x': False, 'y': True}, y=200, label="Images pré-processées", title="\nNuances de gris, \n1000 pixels de large", color="#5098F8")
+    net.add_node("E", fixed={'x': False, 'y': True}, y=200, label="Images pré-processées", title="\nNuances de gris, \n1000 pixels de hauteur", color="#5098F8")
     net.add_node("E2", fixed={'x': False, 'y': True}, y=200, label="Répartition", title="16 catégories, \nSets de train, test et validation", color="#5098F8")
     net.add_node("F", fixed={'x': False, 'y': True}, y=300, label="Caractéristiques", title="Features visuelles extraites", color="#E24768")
     net.add_node("F2", fixed={'x': False, 'y': True}, y=300, label="Images pour ML", title="Sans marge, \n 100x100 pixels", color="#E24768")
